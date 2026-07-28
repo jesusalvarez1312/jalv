@@ -208,6 +208,38 @@ main{max-width:1120px;margin:0 auto;padding:34px 20px 90px}
 .empty h3{font-size:1.15rem;margin-bottom:9px}
 .empty p{color:var(--ink-soft);font-size:.9rem;margin:0 auto;max-width:44ch;line-height:1.6}
 
+/* ---------- Passwortabfrage ---------- */
+.lock{
+  max-width:430px;margin:7vh auto 0;background:var(--card);
+  border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:34px 32px;box-shadow:0 24px 44px -22px rgba(23,70,130,.5);
+}
+.lock-mark{
+  width:58px;height:58px;border-radius:50%;background:var(--grad);
+  display:grid;place-items:center;margin:0 auto 18px;color:#fff;
+}
+.lock h1{font-size:1.42rem;font-weight:700;text-align:center}
+.lock .lock-text{color:var(--ink-soft);font-size:.9rem;margin:10px 0 24px;line-height:1.55;text-align:center}
+.lock-form{display:flex;gap:10px}
+.pw{
+  flex:1;min-width:0;padding:12px 14px;border-radius:12px;
+  border:1px solid var(--line-strong);background:var(--card-2);
+  color:var(--ink);font:inherit;font-size:.95rem;
+}
+.pw::placeholder{color:var(--muted)}
+.btn{
+  padding:12px 22px;border-radius:12px;background:var(--grad);
+  color:#fff;font-weight:600;font-size:.9rem;white-space:nowrap;
+  transition:transform .18s, filter .18s;
+}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.06)}
+.lock-err{color:#C2384F;font-size:.83rem;margin:12px 2px 0;min-height:1.15em}
+.lock.shake{animation:shake .34s}
+@keyframes shake{25%{transform:translateX(-7px)}50%{transform:translateX(7px)}75%{transform:translateX(-4px)}}
+.lock-hint{margin-top:20px;text-align:center;font-size:.8rem;color:var(--muted)}
+.lock-hint a{color:var(--blue);font-weight:500}
+.schloss{display:inline-flex;vertical-align:-2px;margin-left:8px;color:var(--muted)}
+
 .toast{
   position:fixed;left:50%;bottom:26px;transform:translate(-50%,26px);
   background:#fff;border:1px solid var(--line);color:var(--ink);
@@ -259,6 +291,17 @@ const LINKS = {
   wehrhahn:      "https://jesusalvarez1312.github.io/Wehrhahn-Linie/",
   stadtrundfahrt:"https://jesusalvarez1312.github.io/stadtrundfahrt/"
 };
+
+/* ============================================================
+   1b) PASSWÖRTER — hier änderst du die Zugangswörter
+   Hinweis: Das ist ein Sichtschutz, keine echte Verschlüsselung.
+   Wer den Quelltext dieser Datei ansieht, findet die Wörter.
+   Groß- und Kleinschreibung spielt bei der Eingabe keine Rolle.
+   ============================================================ */
+const SCHUTZ = [
+  { prefix:"/leben",  passwort:"sommer26", titel:"Mein Leben",  text:"Dieser Bereich ist privat. Gib dein Passwort ein, um weiterzugehen." },
+  { prefix:"/gaeste", passwort:"rhein26",  titel:"Gästeführer", text:"Dieser Bereich ist privat. Gib dein Passwort ein, um weiterzugehen." }
+];
 
 /* ============================================================
    2) KURSE
@@ -374,11 +417,13 @@ const ART = {
     '<circle cx="40" cy="100" r="6.5" fill="#6D5CF5"/><path d="M262 30c-7 0-12 5-12 12 0 9 12 20 12 20s12-11 12-20c0-7-5-12-12-12Z" fill="#17B6D9"/><circle cx="262" cy="42" r="4.3" fill="#fff"/></svg>'
 };
 
+const SCHLOSS='<span class="schloss" title="Mit Passwort geschützt"><svg viewBox="0 0 24 24" width="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10.5" rx="2.5"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg></span>';
+
 const shelf = o => '<section class="shelf"><button class="shelf-head" data-go="'+o.ziel+'">'+
   '<span class="ring"><span class="ring-in">'+o.icon+'</span></span>'+
-  '<span><span class="shelf-title display">'+o.titel+'</span><span class="shelf-sub" style="display:block">'+o.sub+'</span></span>'+
+  '<span><span class="shelf-title display">'+o.titel+(o.schloss?SCHLOSS:"")+'</span><span class="shelf-sub" style="display:block">'+o.sub+'</span></span>'+
   '<span class="shelf-go">&rsaquo;</span></button>'+
-  '<div class="board"><div class="items">'+o.karten+'</div><div class="plank"></div></div></section>';
+  '<div class="board">'+(o.karten?'<div class="items">'+o.karten+'</div>':'<div style="height:26px"></div>')+'<div class="plank"></div></div></section>';
 
 function karte(o){
   const attrs = o.href ? 'href="'+o.href+'" target="_blank" rel="noopener"' : 'data-go="'+o.go+'"';
@@ -401,16 +446,13 @@ const SEITEN = {
     html:
     '<div class="page-head"><p class="eyebrow">Übersicht</p><h1>Alles an seinem Platz</h1>'+
     '<p>Vier Regale, ein Zugang. Wähle einen Bereich, um weiterzugehen.</p></div>'+
-    shelf({icon:ICON.leben,titel:"Mein Leben",sub:"Planung und Persönliches",ziel:"/leben",
-      karten:karte({name:"Sommerplaner 2026",note:"Die Wochen der Sommerferien",chip:LINKS.sommerplaner?"Fertig":"Link fehlt",chipClass:LINKS.sommerplaner?"live":"soon",go:"/leben"})})+
+    shelf({icon:ICON.leben,titel:"Mein Leben",sub:"Passwort erforderlich",ziel:"/leben",schloss:true,karten:""})+
     shelf({icon:ICON.schule,titel:"Schule",sub:"Fünf Schuljahre, alle Kurse",ziel:"/schule",
       karten:karte({name:"Schuljahr 2026/27",note:"5 Kurse eingerichtet",chip:"Aktuell",chipClass:"live",go:"/schule/2026-27"})+
              karte({name:"Weitere Jahrgänge",note:"2027/28 bis 2030/31",chip:"4 Jahre",chipClass:"soon",go:"/schule"})})+
     shelf({icon:ICON.medien,titel:"Medienberater",sub:"Noch nicht eingeräumt",ziel:"/medienberater",
       karten:karte({name:"Regal leer",note:"Wartet auf Inhalte",chip:"In Vorbereitung",chipClass:"soon",go:"/medienberater"})})+
-    shelf({icon:ICON.gaeste,titel:"Gästeführer",sub:"Sechs Städte, drei fertige Führungen",ziel:"/gaeste",
-      karten:karte({name:"Düsseldorf",note:"3 Führungen online",chip:"Fertig",chipClass:"live",go:"/gaeste/duesseldorf"})+
-             karte({name:"Fünf weitere Städte",note:"Neuss, Essen, Köln, Bacharach, Namur",chip:"Übersicht",chipClass:"soon",go:"/gaeste"})})
+    shelf({icon:ICON.gaeste,titel:"Gästeführer",sub:"Passwort erforderlich",ziel:"/gaeste",schloss:true,karten:""})
   }),
 
   "/leben":()=>({
@@ -519,8 +561,38 @@ function toast(text){
   toastTimer=setTimeout(()=>toastEl.classList.remove("show"),5500);
 }
 
+/* Freigeschaltete Bereiche gelten, bis die Seite neu geladen wird */
+const offen=new Set();
+const bereichVon = pfad => SCHUTZ.find(b => pfad===b.prefix || pfad.indexOf(b.prefix+"/")===0);
+
+const sperrSeite = b =>
+  '<div class="lock" id="lock">'+
+  '<div class="lock-mark"><svg viewBox="0 0 24 24" width="26" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10.5" rx="2.5"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg></div>'+
+  '<h1>'+b.titel+'</h1>'+
+  '<p class="lock-text">'+b.text+'</p>'+
+  '<div class="lock-form">'+
+  '<input class="pw" id="pw" type="password" placeholder="Passwort" autocomplete="current-password" aria-label="Passwort">'+
+  '<button class="btn" data-unlock="'+b.prefix+'">Öffnen</button>'+
+  '</div>'+
+  '<p class="lock-err" id="pw-err" role="alert"></p>'+
+  '<p class="lock-hint"><a href="#/">Zurück zur Übersicht</a></p></div>';
+
 function render(){
   const pfad=decodeURIComponent(location.hash.slice(1))||"/";
+  const bereich=bereichVon(pfad);
+
+  if(bereich && !offen.has(bereich.prefix)){
+    topbar.hidden=false;
+    crumbsBar.hidden=true;
+    app.innerHTML='<div class="view">'+sperrSeite(bereich)+'</div>';
+    backBtn.hidden=false;
+    backBtn.onclick=()=>{ location.hash="#/"; };
+    const feld=document.getElementById("pw");
+    if(feld) feld.focus();
+    window.scrollTo(0,0);
+    return;
+  }
+
   const seite=(SEITEN[pfad]||SEITEN["/"])();
   const zeigeLeiste = seite.chrome!==false;
 
@@ -541,7 +613,34 @@ function render(){
   window.scrollTo(0,0);
 }
 
+function pruefen(prefix){
+  const bereich=SCHUTZ.find(b=>b.prefix===prefix);
+  const feld=document.getElementById("pw");
+  const fehler=document.getElementById("pw-err");
+  const kasten=document.getElementById("lock");
+  if(!bereich||!feld) return;
+  if(feld.value.trim().toLowerCase()===bereich.passwort.toLowerCase()){
+    offen.add(prefix);
+    render();
+  }else{
+    fehler.textContent="Das Passwort stimmt nicht. Versuch es noch einmal.";
+    kasten.classList.remove("shake");
+    void kasten.offsetWidth;
+    kasten.classList.add("shake");
+    feld.select();
+  }
+}
+
+document.addEventListener("keydown",e=>{
+  if(e.key==="Enter" && e.target.id==="pw"){
+    const knopf=document.querySelector("[data-unlock]");
+    if(knopf) pruefen(knopf.dataset.unlock);
+  }
+});
+
 document.addEventListener("click",e=>{
+  const auf=e.target.closest("[data-unlock]");
+  if(auf){ pruefen(auf.dataset.unlock); return; }
   const go=e.target.closest("[data-go]");
   if(go){ location.hash="#"+go.dataset.go; return; }
   const hint=e.target.closest("[data-hinweis]");
