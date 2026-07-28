@@ -240,6 +240,44 @@ main{max-width:1120px;margin:0 auto;padding:34px 20px 90px}
 .lock-hint a{color:var(--blue);font-weight:500}
 .schloss{display:inline-flex;vertical-align:-2px;margin-left:8px;color:var(--muted)}
 
+/* ---------- Karte hinzufügen ---------- */
+.tile.add{
+  border-style:dashed;border-color:var(--line-strong);
+  background:rgba(255,255,255,.5);box-shadow:none;
+  align-items:center;justify-content:center;text-align:center;gap:10px;
+}
+.tile.add::before{display:none}
+.tile.add:hover{background:#fff}
+.plus{font-size:2rem;line-height:1;color:var(--blue);font-family:'Outfit';font-weight:400}
+.add-text{font-family:'Outfit';font-weight:600;font-size:.95rem;color:var(--ink-soft)}
+
+.modal{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:20px;
+  background:rgba(18,48,79,.42);backdrop-filter:blur(4px)}
+.modal[hidden]{display:none}
+.modal-card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
+  width:100%;max-width:540px;max-height:88vh;overflow:auto;padding:28px;
+  box-shadow:0 30px 60px -24px rgba(23,70,130,.6);
+}
+.modal-card h2{font-size:1.3rem;font-weight:700}
+.modal-card .sub{color:var(--ink-soft);font-size:.88rem;margin:9px 0 22px;line-height:1.55}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.76rem;font-weight:600;color:var(--ink-soft);margin-bottom:6px;letter-spacing:.02em}
+.field input{
+  width:100%;padding:11px 13px;border-radius:11px;border:1px solid var(--line-strong);
+  background:var(--card-2);font:inherit;font-size:.92rem;color:var(--ink);
+}
+.code{
+  width:100%;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.76rem;
+  line-height:1.6;padding:13px;border-radius:11px;border:1px solid var(--line-strong);
+  background:#EEF5FF;color:var(--ink);min-height:84px;resize:vertical;margin-top:4px;
+}
+.modal-steps{font-size:.82rem;color:var(--ink-soft);line-height:1.6;margin:16px 0 0;padding-left:20px}
+.modal-steps li{margin-bottom:5px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;flex-wrap:wrap}
+.btn-ghost{padding:12px 18px;border-radius:12px;border:1px solid var(--line-strong);color:var(--ink-soft);font-weight:500;font-size:.9rem}
+.btn-ghost:hover{background:var(--card-2)}
+
 .toast{
   position:fixed;left:50%;bottom:26px;transform:translate(-50%,26px);
   background:#fff;border:1px solid var(--line);color:var(--ink);
@@ -279,6 +317,30 @@ main{max-width:1120px;margin:0 auto;padding:34px 20px 90px}
 </nav>
 
 <main id="app"></main>
+<div class="modal" id="modal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-titel">
+    <h2 id="modal-titel">Neue Karte anlegen</h2>
+    <p class="sub">Trag die Angaben ein. Unten entsteht die fertige Zeile, die du in deine Datei kopierst.</p>
+    <div class="field"><label for="f-titel">Titel</label><input id="f-titel" placeholder="Winterplaner 2027"></div>
+    <div class="field"><label for="f-text">Kurzbeschreibung</label><input id="f-text" placeholder="Wochenplanung für die Weihnachtsferien."></div>
+    <div class="field"><label for="f-link">Adresse der Seite</label><input id="f-link" placeholder="https://…"></div>
+    <div class="field"><label for="f-kuerzel">Kürzel für das Feld (max. 4 Zeichen)</label><input id="f-kuerzel" maxlength="4" placeholder="W27"></div>
+    <label for="f-code" style="font-size:.76rem;font-weight:600;color:var(--ink-soft)">Deine Zeile</label>
+    <textarea class="code" id="f-code" readonly></textarea>
+    <ol class="modal-steps">
+      <li>Zeile kopieren.</li>
+      <li>Auf GitHub die Datei <strong>index.html</strong> öffnen und auf den Stift klicken.</li>
+      <li>Nach <strong>MEIN_LEBEN</strong> suchen (Strg+F).</li>
+      <li>Die Zeile unter die vorhandene setzen — auf das Komma am Zeilenende achten.</li>
+      <li>Unten auf „Commit changes" klicken. Fertig.</li>
+    </ol>
+    <div class="modal-actions">
+      <button class="btn-ghost" data-modal-close>Schließen</button>
+      <button class="btn" id="kopieren">Zeile kopieren</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -286,11 +348,19 @@ main{max-width:1120px;margin:0 auto;padding:34px 20px 90px}
    1) LINKS — hier trägst du fehlende Adressen ein
    ============================================================ */
 const LINKS = {
-  sommerplaner: "",                                                   // <- URL des Sommerplaners 2026 hier einfügen
   backstein:     "https://jesusalvarez1312.github.io/backstein-duesseldorf/",
   wehrhahn:      "https://jesusalvarez1312.github.io/Wehrhahn-Linie/",
   stadtrundfahrt:"https://jesusalvarez1312.github.io/stadtrundfahrt/"
 };
+
+/* ============================================================
+   1c) KARTEN IM REGAL "MEIN LEBEN"
+   Neue Karte: eine Zeile nach dem Muster unten einfügen.
+   Den passenden Text erzeugt dir der Knopf "+" auf der Seite selbst.
+   ============================================================ */
+const MEIN_LEBEN = [
+  { kuerzel:"S26", titel:"Sommerplaner 2026", text:"Deine Wochenplanung für die Sommerferien.", link:"" }
+];
 
 /* ============================================================
    1b) PASSWÖRTER — hier änderst du die Zugangswörter
@@ -308,71 +378,26 @@ const SCHUTZ = [
    Spanische Kurse: Titel und Inhalte komplett auf Spanisch.
    ============================================================ */
 const KURSE = [
-  { id:"ele9", kuerzel:"ELE 9", lang:"es",
+  { id:"ele9",   kuerzel:"ELE 9", lang:"es", link:"",
     name:"Español (ELE 9) 3º ESO",
     info:"3º ESO · Español como tercera lengua extranjera",
-    hero:"Curso 2026/27",
-    oeffnen:"Abrir el curso",
-    panels:[
-      ["Fechas","Exámenes, entregas y salidas del curso."],
-      ["Materiales","Fichas, enlaces y presentaciones de cada unidad."],
-      ["Unidades","El hilo conductor del curso a lo largo del año."],
-      ["Evaluación","Criterios de calificación y cómo se evalúa en clase."]
-    ],
-    fuss:"Los contenidos se añadirán más adelante."
-  },
-  { id:"kl9", kuerzel:"9 KL", lang:"de",
+    oeffnen:"Abrir el curso" },
+  { id:"kl9",    kuerzel:"9 KL",  lang:"de", link:"",
     name:"9 Klassenleitung",
     info:"Jahrgang 9 · Organisation und Klassenleben",
-    hero:"Schuljahr 2026/27",
-    oeffnen:"Kursseite öffnen",
-    panels:[
-      ["Termine","Ausflüge, Elternabende, Abgaben."],
-      ["Material","Formulare, Listen und Vorlagen."],
-      ["Klassenleben","Projekte, Ämter und Absprachen."],
-      ["Notizen","Beobachtungen und Gespräche."]
-    ],
-    fuss:"Die Inhalte ergänzen wir beim nächsten Mal."
-  },
-  { id:"bach1", kuerzel:"1º B", lang:"es",
+    oeffnen:"Kursseite öffnen" },
+  { id:"bach1",  kuerzel:"1º B",  lang:"es", link:"",
     name:"1º Bach. Español (LK Q1)",
     info:"1º de Bachillerato · Curso superior (Leistungskurs)",
-    hero:"Curso 2026/27",
-    oeffnen:"Abrir el curso",
-    panels:[
-      ["Fechas","Exámenes, entregas y presentaciones orales."],
-      ["Materiales","Textos, vídeos y enlaces de cada unidad."],
-      ["Unidades","Los temas del curso, uno tras otro."],
-      ["Evaluación","Criterios de calificación del curso superior."]
-    ],
-    fuss:"Los contenidos se añadirán más adelante."
-  },
-  { id:"bach2", kuerzel:"2º B", lang:"es",
+    oeffnen:"Abrir el curso" },
+  { id:"bach2",  kuerzel:"2º B",  lang:"es", link:"",
     name:"2º Bach. Español (LK Q2)",
     info:"2º de Bachillerato · Curso superior (Leistungskurs)",
-    hero:"Curso 2026/27",
-    oeffnen:"Abrir el curso",
-    panels:[
-      ["Fechas","Exámenes, entregas y fechas de la selectividad."],
-      ["Materiales","Textos, vídeos y enlaces de cada unidad."],
-      ["Unidades","Los temas obligatorios del curso."],
-      ["Evaluación","Criterios de calificación y preparación del examen final."]
-    ],
-    fuss:"Los contenidos se añadirán más adelante."
-  },
-  { id:"medien5", kuerzel:"5 ME", lang:"de",
+    oeffnen:"Abrir el curso" },
+  { id:"medien5",kuerzel:"5 ME",  lang:"de", link:"",
     name:"5 Medien",
     info:"Jahrgang 5 · Medienbildung",
-    hero:"Schuljahr 2026/27",
-    oeffnen:"Kursseite öffnen",
-    panels:[
-      ["Termine","Was wann ansteht."],
-      ["Material","Arbeitsblätter und Links."],
-      ["Unterrichtsreihen","Der rote Faden durch das Jahr."],
-      ["Notizen","Alles, was du dir merken willst."]
-    ],
-    fuss:"Die Inhalte ergänzen wir beim nächsten Mal."
-  }
+    oeffnen:"Kursseite öffnen" }
 ];
 
 const JAHRE = [
@@ -433,9 +458,16 @@ function karte(o){
     '<span class="item-note" style="display:block">'+o.note+'</span></span></'+tag+'>';
 }
 
-const kursKachel = k => '<button class="tile" data-go="/kurs/'+k.id+'"'+(k.lang==="es"?' lang="es"':'')+'>'+
-  '<div><div class="tile-kuerzel">'+k.kuerzel+'</div><h3>'+k.name+'</h3><p>'+k.info+'</p></div>'+
-  '<div class="tile-foot">'+k.oeffnen+' &rsaquo;</div></button>';
+const kursKachel = k => {
+  const offen = k.link
+    ? '<a class="tile" href="'+k.link+'" target="_blank" rel="noopener"'
+    : '<button class="tile" data-hinweis="Für &quot;'+k.name+'&quot; ist noch keine Adresse hinterlegt. Trag sie in der Datei bei KURSE unter link ein — dann öffnet die Kachel die Kursseite."';
+  const zu = k.link ? '</a>' : '</button>';
+  const fuss = k.link ? k.oeffnen+' &nearr;' : 'Link ergänzen';
+  return offen+(k.lang==="es"?' lang="es"':'')+'>'+
+    '<div><div class="tile-kuerzel">'+k.kuerzel+'</div><h3>'+k.name+'</h3><p>'+k.info+'</p></div>'+
+    '<div class="tile-foot">'+fuss+'</div>'+zu;
+};
 
 /* ============================================================
    4) Seiten
@@ -459,11 +491,14 @@ const SEITEN = {
     crumbs:[["Start","/"],["Mein Leben",null]],
     html:
     '<div class="page-head"><p class="eyebrow">Mein Leben</p><h1>Persönliche Planung</h1>'+
-    '<p>Zurzeit liegt hier der Sommerplaner. Weitere Karten kannst du jederzeit daneben stellen.</p></div>'+
-    '<div class="grid">'+ (LINKS.sommerplaner
-      ? '<a class="tile" href="'+LINKS.sommerplaner+'" target="_blank" rel="noopener"><div><div class="tile-kuerzel">S26</div><h3>Sommerplaner 2026</h3><p>Deine Wochenplanung für die Sommerferien.</p></div><div class="tile-foot">Seite öffnen &nearr;</div></a>'
-      : '<button class="tile" data-hinweis="Der Sommerplaner ist noch nicht verknüpft. Trag die Adresse in der Datei unter LINKS bei sommerplaner ein — dann öffnet diese Karte die Seite."><div><div class="tile-kuerzel">S26</div><h3>Sommerplaner 2026</h3><p>Adresse fehlt noch. Ein Klick zeigt dir, wo sie hingehört.</p></div><div class="tile-foot">Link ergänzen</div></button>')
-    +'</div>'
+    '<p>Deine eigenen Seiten. Mit dem Pluszeichen legst du eine weitere Karte an.</p></div>'+
+    '<div class="grid">'+
+    MEIN_LEBEN.map(k => k.link
+      ? '<a class="tile" href="'+k.link+'" target="_blank" rel="noopener"><div><div class="tile-kuerzel">'+k.kuerzel+'</div><h3>'+k.titel+'</h3><p>'+k.text+'</p></div><div class="tile-foot">Seite öffnen &nearr;</div></a>'
+      : '<button class="tile" data-hinweis="Für &quot;'+k.titel+'&quot; ist noch keine Adresse hinterlegt. Trag sie in der Datei bei MEIN_LEBEN unter link ein."><div><div class="tile-kuerzel">'+k.kuerzel+'</div><h3>'+k.titel+'</h3><p>'+k.text+'</p></div><div class="tile-foot">Link ergänzen</div></button>'
+    ).join("")+
+    '<button class="tile add" data-add><span class="plus">+</span><span class="add-text">Karte hinzufügen</span></button>'+
+    '</div>'
   }),
 
   "/schule":()=>({
@@ -524,22 +559,6 @@ STAEDTE.filter(s=>!s.fertig).forEach(s=>{
     crumbs:[["Start","/"],["Gästeführer","/gaeste"],[s.name,null]],
     html:'<div class="page-head"><p class="eyebrow">'+s.name+'</p><h1>Noch keine Führungen</h1></div>'+
       '<div class="empty"><h3>'+s.name+' ist vorbereitet</h3><p>Sobald eine Führung für '+s.name+' steht, stellen wir sie hier neben die Düsseldorfer Seiten.</p></div>'
-  });
-});
-
-/* Kursseiten: ohne Kopfleiste und ohne Pfad (chrome:false) */
-KURSE.forEach(k=>{
-  SEITEN["/kurs/"+k.id]=()=>({
-    chrome:false,
-    lang:k.lang,
-    crumbs:[["Start","/"],["Schule","/schule"],["Schuljahr 2026/27","/schule/2026-27"],[k.name,null]],
-    html:
-    '<div class="course-hero"><div class="tile-kuerzel">'+k.kuerzel+'</div>'+
-    '<h1 style="font-size:clamp(1.7rem,4.4vw,2.35rem);font-weight:700">'+k.name+'</h1>'+
-    '<p style="color:var(--ink-soft);margin:10px 0 0;font-size:.92rem">'+k.info+' &middot; '+k.hero+'</p></div>'+
-    '<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(258px,1fr))">'+
-    k.panels.map(p=>'<div class="panel"><h3>'+p[0]+'</h3><p>'+p[1]+'</p></div>').join("")+'</div>'+
-    '<p style="color:var(--muted);font-size:.85rem;margin-top:22px">'+k.fuss+'</p>'
   });
 });
 
@@ -613,6 +632,46 @@ function render(){
   window.scrollTo(0,0);
 }
 
+/* ---------- Dialog "Karte hinzufügen" ---------- */
+const modal=document.getElementById("modal");
+const felder=["f-titel","f-text","f-link","f-kuerzel"].map(id=>document.getElementById(id));
+const codeFeld=document.getElementById("f-code");
+
+function saeubern(t){ return String(t).replace(/\\/g,"").replace(/"/g,"'"); }
+
+function zeileBauen(){
+  const [t,b,l,k]=felder.map(f=>f.value.trim());
+  const kuerzel = k || (t.split(/\s+/).map(w=>w[0]||"").join("").slice(0,3).toUpperCase() || "NEU");
+  codeFeld.value =
+    '  { kuerzel:"'+saeubern(kuerzel)+'", titel:"'+saeubern(t||"Titel")+'", text:"'+
+    saeubern(b||"Kurzbeschreibung")+'", link:"'+saeubern(l)+'" },';
+}
+
+function modalAuf(){
+  felder.forEach(f=>f.value="");
+  zeileBauen();
+  modal.hidden=false;
+  felder[0].focus();
+}
+function modalZu(){ modal.hidden=true; }
+
+felder.forEach(f=>f.addEventListener("input",zeileBauen));
+document.getElementById("kopieren").addEventListener("click",()=>{
+  codeFeld.select();
+  let ok=false;
+  try{ ok=document.execCommand("copy"); }catch(e){}
+  if(navigator.clipboard && !ok){
+    navigator.clipboard.writeText(codeFeld.value).then(
+      ()=>toast("Zeile kopiert. Jetzt in index.html bei MEIN_LEBEN einfügen."),
+      ()=>toast("Die Zeile ist markiert — kopiere sie mit Strg+C.")
+    );
+  }else{
+    toast(ok?"Zeile kopiert. Jetzt in index.html bei MEIN_LEBEN einfügen.":"Die Zeile ist markiert — kopiere sie mit Strg+C.");
+  }
+});
+modal.addEventListener("click",e=>{ if(e.target===modal) modalZu(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !modal.hidden) modalZu(); });
+
 function pruefen(prefix){
   const bereich=SCHUTZ.find(b=>b.prefix===prefix);
   const feld=document.getElementById("pw");
@@ -639,6 +698,8 @@ document.addEventListener("keydown",e=>{
 });
 
 document.addEventListener("click",e=>{
+  if(e.target.closest("[data-add]")){ modalAuf(); return; }
+  if(e.target.closest("[data-modal-close]")){ modalZu(); return; }
   const auf=e.target.closest("[data-unlock]");
   if(auf){ pruefen(auf.dataset.unlock); return; }
   const go=e.target.closest("[data-go]");
