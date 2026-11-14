@@ -482,8 +482,8 @@ const SEITEN = {
     shelf({icon:ICON.schule,titel:"Schule",sub:"Fünf Schuljahre, alle Kurse",ziel:"/schule",
       karten:karte({name:"Schuljahr 2026/27",note:"5 Kurse eingerichtet",chip:"Aktuell",chipClass:"live",go:"/schule/2026-27"})+
              karte({name:"Weitere Jahrgänge",note:"2027/28 bis 2030/31",chip:"4 Jahre",chipClass:"soon",go:"/schule"})})+
-    shelf({icon:ICON.medien,titel:"Medienberater",sub:"Noch nicht eingeräumt",ziel:"/medienberater",
-      karten:karte({name:"Regal leer",note:"Wartet auf Inhalte",chip:"In Vorbereitung",chipClass:"soon",go:"/medienberater"})})+
+    shelf({icon:ICON.medien,titel:"Medienberater",sub:"Guides und Material",ziel:"/medienberater",
+      karten:karte({name:"KI ohne Abo",note:"Guide von Nikita Sapunov",chip:"Link",chipClass:"live",href:"https://nikitasapunov.com/lp/guides/open.html"})})+
     shelf({icon:ICON.gaeste,titel:"Gästeführer",sub:"Passwort erforderlich",ziel:"/gaeste",schloss:true,karten:""})
   }),
 
@@ -528,8 +528,13 @@ const SEITEN = {
   "/medienberater":()=>({
     crumbs:[["Start","/"],["Medienberater",null]],
     html:
-    '<div class="page-head"><p class="eyebrow">Medienberater</p><h1>Noch nicht eingeräumt</h1></div>'+
-    '<div class="empty"><h3>Dieses Regal ist frei</h3><p>Sag Bescheid, was hierher soll — Fortbildungen, Konzepte, Material für Kollegien. Dann bauen wir es auf.</p></div>'
+    '<div class="page-head"><p class="eyebrow">Medienberater</p><h1>Guides und Material</h1>'+
+    '<p>Gesammelte Anleitungen und Links für die Beratung von Kollegien.</p></div>'+
+    '<div class="grid">'+
+    '<a class="tile" href="https://nikitasapunov.com/lp/guides/open.html" target="_blank" rel="noopener"><div><div class="tile-kuerzel">KI</div><h3>KI ohne Abo</h3>'+
+    '<p>Wie man Claude, GPT, Gemini und kostenlose Modelle über OpenRouter nutzt und nur pro Anfrage zahlt statt ein Monatsabo. Mit Testaufgaben zum Vergleichen. Guide von Nikita Sapunov.</p></div>'+
+    '<div class="tile-foot">Seite öffnen &nearr;</div></a>'+
+    '</div>'
   }),
 
   "/gaeste":()=>({
