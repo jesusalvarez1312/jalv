@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Türme von Hanoi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@112,800&family=Archivo:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: knappe Spielshow, sportlich, klar
+   IDEA: das Strandspiel aus "The Power" – drei Säulen im Sand
+   PICTURE: Himmel, Sand, drei dunkle Säulen A B C mit Scheiben
+   COLOUR and TYPE: Himmelblau, Sand, Säulen schwarz, Scheiben blau/grün/rot/pink; Archivo breit
+   LAYOUT: Titel klein, Spielfeld groß, darunter Zähler, Uhr, Neustart */
+:root{color-scheme:light dark;--sky:light-dark(#3aa0ff,#0d2a52);--sky2:light-dark(#8fd0ff,#1b3f70);--sand:light-dark(#e6d3a8,#6b5a3a);--sand2:light-dark(#d4bd8a,#544628);--ink:light-dark(#0e1a2b,#f2f5fa);--card:light-dark(#ffffff,#13233a);--line:light-dark(#0e1a2b22,#ffffff22);--red:#e4002b;--ok:#0f8a4b}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--sand);color:var(--ink);font:16px/1.5 Archivo,system-ui,sans-serif;overflow-x:clip}
+header{background:var(--sky);padding:18px max(5vw,16px) 6px;color:#fff}
+h1{font-family:Archivo,sans-serif;font-stretch:112%;font-weight:800;font-size:clamp(28px,6vw,44px);line-height:1.05;margin:0;text-wrap:balance}
+header p{margin:4px 0 0;font-size:15px;opacity:.95}
+.stage{position:relative;background:linear-gradient(var(--sky) 0 55%,var(--sand) 55%);padding:0 max(3vw,8px)}
+svg#board{display:block;width:100%;max-width:900px;margin:0 auto;height:auto;touch-action:manipulation;user-select:none}
+.post{cursor:pointer}
+.post:focus{outline:none}
+.post:focus-visible .hit{stroke:#fff;stroke-width:3}
+.bar{max-width:900px;margin:0 auto;padding:14px max(4vw,12px) 8px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.stat{background:var(--card);border-radius:12px;padding:8px 14px;display:flex;align-items:baseline;gap:8px}
+.stat b{font-stretch:112%;font-weight:800;font-size:28px;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px}
+.over b{color:var(--red)}
+button{font:600 16px Archivo,sans-serif;min-height:44px;padding:0 18px;border-radius:10px;border:0;background:var(--ink);color:var(--card);cursor:pointer}
+button:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+#msg{max-width:900px;margin:0 auto;padding:4px max(4vw,12px) 6px;font-size:17px;font-weight:600;min-height:34px}
+.rules{max-width:900px;margin:0 auto;padding:8px max(4vw,12px) 32px;font-size:15px}
+.rules ul{margin:6px 0 0;padding-left:20px}
+.banner{position:absolute;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none}
+.banner.show{display:flex}
+.banner div{background:var(--card);color:var(--ink);border-radius:16px;padding:18px 26px;text-align:center;font-stretch:112%;font-weight:800;font-size:clamp(26px,6vw,40px);line-height:1.1;box-shadow:0 10px 30px #0004}
+.banner small{display:block;font:600 15px Archivo,sans-serif;margin-top:6px}
+.win{color:var(--ok)}.lose{color:var(--red)}
+@keyframes lift{from{transform:translateY(6px)}to{transform:translateY(0)}}
+.lifted{animation:lift .15s ease-out}
+@media(prefers-reduced-motion:reduce){.lifted{animation:none}}
+</style>
+</head>
+<body>
+<header>
+<h1>Türme von Hanoi</h1>
+<p>Bring alle 4 Scheiben von A nach C – in höchstens 15 Zügen.</p>
+</header>
+<div class="stage">
+<svg id="board" viewBox="0 0 600 300" role="application" aria-label="Spielfeld mit Säulen A, B und C"></svg>
+<div class="banner" id="banner"><div id="bannerText"></div></div>
+</div>
+<div class="bar">
+<div class="stat" id="movesBox"><b id="moves">0</b><span>/ 15 Züge</span></div>
+<div class="stat"><b id="time">00:00</b><span>Zeit</span></div>
+<div class="stat"><b id="best">--:--</b><span>Rekord</span></div>
+<button id="reset" type="button">Neu starten</button>
+</div>
+<p id="msg" aria-live="polite">Tippe auf eine Säule, um die oberste Scheibe zu nehmen.</p>
+<div class="rules">
+<strong>Regeln</strong>
+<ul>
+<li>Immer nur eine Scheibe bewegen: erst Säule antippen, dann Ziel-Säule.</li>
+<li>Nie eine größere auf eine kleinere Scheibe legen.</li>
+<li>Mehr als 15 Züge = verloren. Tipp: Blau zuerst nach B.</li>
+</ul>
+</div>
+<script>
+{
+const COLS=['#2f7fe0','#4f9a1c','#e0393a','#d4537e'];
+const NAMES=['Blau','Grün','Rot','Pink'];
+const X=[110,300,490],BASE=250,H=26,MAX=15;
+const svg=document.getElementById('board');
+const movesEl=document.getElementById('moves'),movesBox=document.getElementById('movesBox');
+const timeEl=document.getElementById('time'),msg=document.getElementById('msg');
+const banner=document.getElementById('banner'),bannerText=document.getElementById('bannerText');
+let posts,sel,moves,over,t0,tick;
+function reset(){posts=[[3,2,1,0],[],[]];sel=null;moves=0;over=false;t0=null;clearInterval(tick);tick=null;timeEl.textContent='00:00';banner.className='banner';msg.textContent='Tippe auf eine Säule, um die oberste Scheibe zu nehmen.';draw();}
+function fmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function startClock(){if(t0)return;t0=Date.now();tick=setInterval(()=>{timeEl.textContent=fmt(Math.floor((Date.now()-t0)/1000));},250);}
+function disc(d,x,y,lift){const w=60+d*34;const c=COLS[d];
+return `<g class="${lift?'lifted':''}"><rect x="${x-w/2}" y="${y+4}" width="${w}" height="${H-4}" rx="6" fill="#0003"/><rect x="${x-w/2}" y="${y}" width="${w}" height="${H-4}" rx="6" fill="${c}" ${lift?'stroke="#fff" stroke-width="3"':''}/><rect x="${x-w/2+6}" y="${y+3}" width="${w-12}" height="4" rx="2" fill="#ffffff55"/></g>`;}
+function draw(){let h='';
+h+=`<ellipse cx="300" cy="262" rx="290" ry="14" fill="var(--sand2)"/>`;
+X.forEach((x,i)=>{const active=sel===i;
+h+=`<g class="post" data-p="${i}" tabindex="0" role="button" aria-label="Säule ${'ABC'[i]}, ${posts[i].length} Scheiben">`;
+h+=`<rect class="hit" x="${x-95}" y="20" width="190" height="255" rx="12" fill="${active?'#ffffff33':'transparent'}"/>`;
+h+=`<rect x="${x-70}" y="${BASE}" width="140" height="10" rx="3" fill="#1a1a22"/>`;
+h+=`<rect x="${x-9}" y="60" width="18" height="${BASE-60}" rx="3" fill="#1a1a22"/><rect x="${x-9}" y="60" width="5" height="${BASE-60}" fill="#ffffff22"/>`;
+h+=`<text x="${x}" y="80" text-anchor="middle" fill="#fff" style="font:800 15px Archivo,sans-serif">${'ABC'[i]}</text>`;
+posts[i].forEach((d,j)=>{const top=j===posts[i].length-1;const lift=active&&top;h+=disc(d,x,lift?28:BASE-H*(j+1),lift);});
+h+=`</g>`;});
+svg.innerHTML=h;
+movesEl.textContent=moves;movesBox.classList.toggle('over',moves>=MAX&&!won());}
+function won(){return posts[2].length===4;}
+const bestEl=document.getElementById('best');
+function getBest(){try{const v=+localStorage.getItem('hanoi4-best');return v>0?v:null;}catch(e){return null;}}
+function showBest(){const b=getBest();bestEl.textContent=b?fmtMs(b):'--:--';}
+function fmtMs(ms){const s=ms/1000;return String(Math.floor(s/60)).padStart(2,'0')+':'+(s%60).toFixed(1).padStart(4,'0');}
+function end(win){over=true;clearInterval(tick);
+let rec='';if(win){const ms=Date.now()-t0;timeEl.textContent=fmtMs(ms);const b=getBest();if(!b||ms<b){try{localStorage.setItem('hanoi4-best',ms);}catch(e){}rec=' · Neuer Rekord!';}showBest();}
+bannerText.innerHTML=win?`<span class="win">Geschafft!</span><small>${moves} Züge · ${timeEl.textContent}${rec}</small>`:`<span class="lose">Verloren</span><small>Mehr als 15 Züge nötig</small>`;
+banner.className='banner show';msg.textContent=win?(moves===15?'Perfekt – die kürzeste Lösung!':'Gelöst.'):'Die 15 Züge sind aufgebraucht. Tippe auf „Neu starten“.';}
+function tap(i){if(over)return;
+if(sel===null){if(!posts[i].length){msg.textContent=`Säule ${'ABC'[i]} ist leer.`;return;}sel=i;startClock();msg.textContent=`${NAMES[posts[i].at(-1)]} genommen – wohin?`;draw();return;}
+if(sel===i){sel=null;msg.textContent='Abgelegt. Wähle eine Säule.';draw();return;}
+const d=posts[sel].at(-1),top=posts[i].at(-1);
+if(top!==undefined&&top<d){msg.textContent=`Geht nicht: ${NAMES[d]} ist größer als ${NAMES[top]}.`;return;}
+posts[i].push(posts[sel].pop());moves++;msg.textContent=`Zug ${moves}: ${NAMES[d]} ${'ABC'[sel]} → ${'ABC'[i]}`;sel=null;draw();
+if(won())end(true);else if(moves>=MAX)end(false);}
+svg.addEventListener('click',e=>{const g=e.target.closest('.post');if(g)tap(+g.dataset.p);});
+svg.addEventListener('keydown',e=>{const g=e.target.closest('.post');if(g&&(e.key==='Enter'||e.key===' ')){e.preventDefault();tap(+g.dataset.p);}});
+document.addEventListener('keydown',e=>{if(['1','2','3'].includes(e.key))tap(+e.key-1);if(['a','b','c'].includes(e.key.toLowerCase())&&!e.target.closest('.post'))tap('abc'.indexOf(e.key.toLowerCase()));});
+document.getElementById('reset').addEventListener('click',reset);
+showBest();
+reset();
+}
+</script>
+</body>
+</html>
