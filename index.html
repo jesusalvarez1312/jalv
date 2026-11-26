@@ -350,7 +350,8 @@ main{max-width:1120px;margin:0 auto;padding:34px 20px 90px}
 const LINKS = {
   backstein:     "https://jesusalvarez1312.github.io/backstein-duesseldorf/",
   wehrhahn:      "https://jesusalvarez1312.github.io/Wehrhahn-Linie/",
-  stadtrundfahrt:"https://jesusalvarez1312.github.io/stadtrundfahrt/"
+  stadtrundfahrt:"https://jesusalvarez1312.github.io/stadtrundfahrt/",
+  koelnschueler: "https://jesusalvarez1312.github.io/jalv/koeln-schuelerfuehrung/"
 };
 
 /* ============================================================
@@ -411,14 +412,15 @@ const STAEDTE = [
   {id:"duesseldorf", name:"Düsseldorf", land:"Nordrhein-Westfalen", fertig:true},
   {id:"neuss",       name:"Neuss",      land:"Nordrhein-Westfalen", fertig:false},
   {id:"essen",       name:"Essen",      land:"Nordrhein-Westfalen", fertig:false},
-  {id:"koeln",       name:"Köln",       land:"Nordrhein-Westfalen", fertig:false},
+  {id:"koeln",       name:"Köln",       land:"Nordrhein-Westfalen", fertig:true},
   {id:"bacharach",   name:"Bacharach",  land:"Rheinland-Pfalz",     fertig:false},
   {id:"namur",       name:"Namur",      land:"Wallonien, Belgien",  fertig:false}
 ];
 const FUEHRUNGEN = [
-  {key:"backstein",     titel:"Backstein Düsseldorf", text:"Rundgang zur Backsteinarchitektur der Stadt.", art:"brick"},
-  {key:"wehrhahn",      titel:"Wehrhahn-Linie",       text:"Die Kunst in den Bahnhöfen der U-Bahn-Linie.", art:"line"},
-  {key:"stadtrundfahrt",titel:"Stadtrundfahrt",       text:"Die große Runde durch Düsseldorf.",           art:"route"}
+  {key:"backstein",     stadt:"duesseldorf", titel:"Backstein Düsseldorf", text:"Rundgang zur Backsteinarchitektur der Stadt.", art:"brick"},
+  {key:"wehrhahn",      stadt:"duesseldorf", titel:"Wehrhahn-Linie",       text:"Die Kunst in den Bahnhöfen der U-Bahn-Linie.", art:"line"},
+  {key:"stadtrundfahrt",stadt:"duesseldorf", titel:"Stadtrundfahrt",       text:"Die große Runde durch Düsseldorf.",           art:"route"},
+  {key:"koelnschueler", stadt:"koeln",       titel:"Köln für Schüler",     text:"14 Stationen vom Dom bis zur Madonna in den Trümmern, Deutsch und Spanisch.", art:"dom"}
 ];
 
 /* ============================================================
@@ -432,6 +434,9 @@ const ICON = {
 };
 
 const ART = {
+  dom:'<svg viewBox="0 0 300 132"><g fill="rgba(46,123,246,.16)" stroke="rgba(46,123,246,.7)" stroke-width="1.5" stroke-linejoin="round">'+
+    '<path d="M104 124V52l9-38 9 38v72z"/><path d="M178 124V52l9-38 9 38v72z"/><path d="M122 124V78h56v46z"/><path d="M196 124V84l40-16 22 16v40z"/></g>'+
+    '<path d="M20 126h260" stroke="rgba(23,182,217,.8)" stroke-width="3" stroke-linecap="round"/></svg>',
   brick:'<svg viewBox="0 0 300 132" preserveAspectRatio="none"><g fill="none" stroke="rgba(46,123,246,.34)" stroke-width="1.2">'+
     Array.from({length:7},(_,r)=>Array.from({length:8},(_,c)=>'<rect x="'+(c*42-(r%2?21:0))+'" y="'+(r*19+4)+'" width="40" height="17" rx="2"/>').join("")).join("")+
     '</g><rect x="118" y="42" width="64" height="72" rx="4" fill="rgba(23,182,217,.18)" stroke="rgba(23,182,217,.7)" stroke-width="1.5"/></svg>',
@@ -545,10 +550,10 @@ const SEITEN = {
     crumbs:[["Start","/"],["Gästeführer",null]],
     html:
     '<div class="page-head"><p class="eyebrow">Gästeführer</p><h1>Städte</h1>'+
-    '<p>Düsseldorf ist bereits eingerichtet. Die übrigen Städte warten auf ihre Führungen.</p></div><div class="grid">'+
+    '<p>Düsseldorf und Köln sind eingerichtet. Die übrigen Städte warten auf ihre Führungen.</p></div><div class="grid">'+
     STAEDTE.map(s=>'<button class="tile city '+(s.fertig?"":"off")+'" data-go="/gaeste/'+s.id+'">'+
       '<div><h3>'+s.name+'</h3><p>'+s.land+'</p></div>'+
-      '<div class="tile-foot"><span class="dot '+(s.fertig?"":"off")+'"></span>'+(s.fertig?"3 Führungen":"in Vorbereitung")+'</div></button>').join("")+'</div>'
+      '<div class="tile-foot"><span class="dot '+(s.fertig?"":"off")+'"></span>'+(s.fertig?(n=>n+(n===1?" Führung":" Führungen"))(FUEHRUNGEN.filter(f=>f.stadt===s.id).length):"in Vorbereitung")+'</div></button>').join("")+'</div>'
   }),
 
   "/gaeste/duesseldorf":()=>({
@@ -557,11 +562,22 @@ const SEITEN = {
     '<div class="page-head"><p class="eyebrow">Düsseldorf</p><h1>Meine Führungen</h1>'+
     '<p>Drei fertige Seiten. Ein Klick öffnet sie in einem neuen Tab.</p></div>'+
     '<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(268px,1fr))">'+
-    FUEHRUNGEN.map(f=>'<a class="tile tour" href="'+LINKS[f.key]+'" target="_blank" rel="noopener">'+
+    FUEHRUNGEN.filter(f=>f.stadt==="duesseldorf").map(f=>'<a class="tile tour" href="'+LINKS[f.key]+'" target="_blank" rel="noopener">'+
       '<div class="tour-art">'+ART[f.art]+'</div><div class="tour-body"><h3>'+f.titel+'</h3><p>'+f.text+'</p>'+
       '<div class="tile-foot">Seite öffnen &nearr;</div></div></a>').join("")+'</div>'
   })
 };
+
+SEITEN["/gaeste/koeln"]=()=>({
+  crumbs:[["Start","/"],["Gästeführer","/gaeste"],["Köln",null]],
+  html:
+  '<div class="page-head"><p class="eyebrow">Köln</p><h1>Meine Führungen</h1>'+
+  '<p>Ein Klick öffnet die Seite in einem neuen Tab.</p></div>'+
+  '<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(268px,1fr))">'+
+  FUEHRUNGEN.filter(f=>f.stadt==="koeln").map(f=>'<a class="tile tour" href="'+LINKS[f.key]+'" target="_blank" rel="noopener">'+
+    '<div class="tour-art">'+ART[f.art]+'</div><div class="tour-body"><h3>'+f.titel+'</h3><p>'+f.text+'</p>'+
+    '<div class="tile-foot">Seite öffnen &nearr;</div></div></a>').join("")+'</div>'
+});
 
 STAEDTE.filter(s=>!s.fertig).forEach(s=>{
   SEITEN["/gaeste/"+s.id]=()=>({

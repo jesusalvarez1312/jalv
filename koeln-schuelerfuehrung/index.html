@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Köln entdecken – Stadtführung für Schüler</title>
+<style>
+  :root{
+    --rot:#c8102e; --rot-dunkel:#8f0b21; --papier:#faf7f2; --tinte:#1f1d1b; --grau:#6b6560;
+    --blau:#e8f0fb; --blau-r:#2f6fc6; --gruen:#e7f5ea; --gruen-r:#2e8b4a;
+    --orange:#fff1e0; --orange-r:#d9822b; --lila:#f1ecfa; --lila-r:#7a55c7;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--papier);color:var(--tinte);line-height:1.55;font-size:17px}
+  header.hero{background:var(--rot);color:#fff;padding:2.2rem 1.2rem 1.6rem;position:relative;overflow:hidden}
+  header.hero::after{content:"";position:absolute;right:-30px;bottom:-10px;width:220px;height:200px;opacity:.15;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 90'%3E%3Cpath fill='white' d='M20 90V35l5-25 5 25v55zM70 90V35l5-25 5 25v55zM28 90V55h44v35z'/%3E%3C/svg%3E") no-repeat center/contain}
+  .wrap{max-width:820px;margin:0 auto}
+  .hero h1{margin:.2rem 0 .3rem;font-size:2rem;line-height:1.15}
+  .hero p{margin:0;opacity:.92}
+  .lang{position:absolute;top:1rem;right:1rem;display:flex;gap:.3rem;z-index:2}
+  .lang a{color:#fff;text-decoration:none;border:2px solid #fff;border-radius:99px;padding:.15rem .7rem;font-weight:700;font-size:.85rem}
+  .lang a.aktiv{background:#fff;color:var(--rot)}
+  nav.route{position:sticky;top:0;background:#fff;border-bottom:1px solid #e5ded4;z-index:5;overflow-x:auto;white-space:nowrap;padding:.55rem .8rem}
+  nav.route a{display:inline-block;margin-right:.35rem;padding:.25rem .65rem;border-radius:99px;background:var(--papier);color:var(--tinte);text-decoration:none;font-size:.85rem;border:1px solid #e5ded4}
+  nav.route a b{color:var(--rot)}
+  main{padding:1rem 1rem 3rem}
+  .legende{display:flex;flex-wrap:wrap;gap:.4rem;margin:.4rem 0 1.4rem;font-size:.82rem}
+  .legende span{padding:.2rem .6rem;border-radius:6px;border-left:4px solid}
+  section.station{background:#fff;border-radius:16px;padding:1.2rem 1.2rem .6rem;margin:0 0 1.4rem;box-shadow:0 2px 10px rgba(0,0,0,.05);scroll-margin-top:60px}
+  .kopf{display:flex;align-items:center;gap:.8rem;margin-bottom:.3rem}
+  .nr{flex:0 0 auto;width:44px;height:44px;border-radius:50%;background:var(--rot);color:#fff;display:grid;place-items:center;font-weight:800;font-size:1.1rem}
+  .kopf h2{margin:0;font-size:1.35rem;line-height:1.2}
+  .ort{color:var(--grau);font-size:.9rem;margin:0 0 .8rem 56px}
+  .box{border-radius:10px;padding:.75rem .95rem;margin:0 0 .8rem;border-left:5px solid}
+  .box h3{margin:0 0 .35rem;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase}
+  .box ul{margin:0;padding-left:1.15rem}
+  .box li{margin:.25rem 0}
+  .box p{margin:0}
+  .sag{background:var(--blau);border-color:var(--blau-r)} .sag h3{color:var(--blau-r)}
+  .such{background:var(--gruen);border-color:var(--gruen-r)} .such h3{color:var(--gruen-r)}
+  .frag{background:var(--orange);border-color:var(--orange-r)} .frag h3{color:var(--orange-r)}
+  .tipp{background:var(--lila);border-color:var(--lila-r)} .tipp h3{color:var(--lila-r)}
+  .zahlen{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.6rem;margin:0 0 .8rem}
+  .zahl{background:var(--papier);border-radius:10px;padding:.6rem .7rem;text-align:center}
+  .zahl strong{display:block;font-size:1.35rem;color:var(--rot)}
+  .zahl span{font-size:.82rem;color:var(--grau)}
+  .weiter{display:block;text-align:right;font-size:.85rem;color:var(--rot);text-decoration:none;margin:.2rem 0 .6rem}
+  .bilder{display:flex;gap:.6rem;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 0 .9rem;padding-bottom:.3rem}
+  .bilder figure{flex:0 0 auto;width:min(100%,520px);margin:0;scroll-snap-align:start}
+  .bilder.einzeln figure{width:100%}
+  .bilder img{width:100%;height:auto;max-height:420px;object-fit:contain;background:#efe9e0;border-radius:10px;display:block}
+  .bilder figcaption{font-size:.82rem;color:var(--grau);margin-top:.25rem}
+  .wisch{font-size:.8rem;color:var(--grau);margin:-.5rem 0 .8rem}
+  footer{text-align:center;color:var(--grau);font-size:.85rem;padding:1.5rem 1rem 2.5rem}
+  @media print{nav.route,.lang,.weiter{display:none}section.station{box-shadow:none;break-inside:avoid;border:1px solid #ddd}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="lang"><a href="#de" data-l="de">DE</a><a href="#es" data-l="es">ES</a></div>
+  <div class="wrap">
+    <div id="untertitel" style="font-weight:600;opacity:.85"></div>
+    <h1 id="titel"></h1>
+    <p id="intro"></p>
+  </div>
+</header>
+<nav class="route" id="route"></nav>
+<main class="wrap">
+  <div class="legende" id="legende"></div>
+  <div id="stationen"></div>
+</main>
+<footer id="fuss"></footer>
+
+<script>
+const UI = {
+  de:{untertitel:"Stadtführung für Schüler", titel:"Köln entdecken", intro:"Vom Römerlager zur Millionenstadt – 14 Stationen mit Sprechtexten, Suchaufträgen und Fragen zum Mitmachen.",
+      sag:"Das kannst du sagen", wisch:"← wischen für mehr Bilder →", such:"Schaut mal!", frag:"Frage an die Klasse", tipp:"Tipp", weiter:"↓ nächste Station", nach:"↑ nach oben",
+      fuss:"Erstellt von Jesús Álvarez · Gästeführer Düsseldorf & Neuss"},
+  es:{untertitel:"Visita guiada para alumnos", titel:"Descubrir Colonia", intro:"Del campamento romano a la gran ciudad: 14 paradas con textos para contar, tareas de búsqueda y preguntas para participar.",
+      sag:"Lo que puedes contar", wisch:"← desliza para ver más imágenes →", such:"¡Mirad!", frag:"Pregunta para la clase", tipp:"Consejo", weiter:"↓ siguiente parada", nach:"↑ arriba",
+      fuss:"Creado por Jesús Álvarez · Guía turístico en Düsseldorf y Neuss"}
+};
+
+const S = [
+ {id:"koeln", bilder:[["roemisches-koeln.jpg",{de:"Das römische Köln mit Stadtmauer, Hafen und Fernstraßen (Rekonstruktion)",es:"La Colonia romana con muralla, puerto y calzadas (reconstrucción)"}]], t:{de:"Willkommen in Köln", es:"Bienvenidos a Colonia"}, o:{de:"Treffpunkt am Dom", es:"Punto de encuentro junto a la catedral"},
+  zahlen:{de:[["1,08 Mio.","Einwohner"],["405 km²","Fläche"],["50 n. Chr.","Stadtrecht"],["Nr. 4","größte Stadt Deutschlands"]],
+          es:[["1,08 mill.","habitantes"],["405 km²","superficie"],["50 d. C.","derechos de ciudad"],["N.º 4","ciudad más grande de Alemania"]]},
+  sag:{de:["Vor über 2000 Jahren bauten die Römer hier am Rhein ein Lager und siedelten den germanischen Stamm der Ubier an.",
+           "Im Jahr 50 n. Chr. sorgte Agrippina, die Frau von Kaiser Claudius, dafür, dass ihr Geburtsort zur römischen Stadt wurde: „Colonia Claudia Ara Agrippinensium“.",
+           "Aus „Colonia“ wurde später „Köln“.",
+           "Köln ist die größte Stadt in NRW, hat 9 Stadtbezirke und 86 Stadtteile.",
+           "Bekannt ist Köln für den Dom, den Karneval, das Kölsch und Medien wie WDR und RTL."],
+       es:["Hace más de 2000 años, los romanos construyeron aquí, junto al Rin, un campamento y asentaron a la tribu germánica de los ubios.",
+           "En el año 50 d. C., Agripina, esposa del emperador Claudio, consiguió que su ciudad natal se convirtiera en ciudad romana: «Colonia Claudia Ara Agrippinensium».",
+           "De «Colonia» salió más tarde el nombre «Köln».",
+           "Colonia es la ciudad más grande de Renania del Norte-Westfalia, con 9 distritos y 86 barrios.",
+           "Es famosa por su catedral, el carnaval, la cerveza Kölsch y medios como WDR y RTL."]},
+  frag:{de:"Was glaubt ihr: Woher kommt der Name „Köln“?", es:"¿Qué creéis: de dónde viene el nombre «Köln»?"}},
+
+ {id:"dom-aussen", bilder:[["dom-um-1850.jpg",{de:"Bauzustand um 1850 – mit dem alten Holzkran",es:"Estado de las obras hacia 1850, con la antigua grúa de madera"}],["dom-1855.jpg",{de:"Bauzustand 1855",es:"Estado de las obras en 1855"}],["dom-1871.jpg",{de:"Bauzustand um 1871",es:"Estado de las obras hacia 1871"}],["dom-1875.jpg",{de:"Bauzustand 1875",es:"Estado de las obras en 1875"}],["dom-1882.jpg",{de:"Vollendeter Dom nach Abbau der Turmgerüste, 1882",es:"La catedral terminada, tras quitar los andamios de las torres, 1882"}]], t:{de:"Der Dom von außen", es:"La catedral por fuera"}, o:{de:"Domplatte", es:"Explanada de la catedral"},
+  sag:{de:["1164 kamen die Reliquien der Heiligen Drei Könige nach Köln. Für sie brauchte man eine prächtige Kirche.",
+           "Grundstein 1248, um 1530 Baustopp. Jahrhundertelang stand ein Holzkran auf dem Südturm. Erst 1880 war der Dom fertig – über 600 Jahre Bauzeit!",
+           "157 Meter hoch. Von 1880 bis 1884 war er das höchste Gebäude der Welt.",
+           "Stil: Gotik, nach dem Vorbild französischer Kathedralen.",
+           "Im Zweiten Weltkrieg trafen ihn 14 Bomben, aber er blieb stehen.",
+           "Seit 1996 UNESCO-Welterbe. Man sagt: „Wenn der Dom fertig ist, geht die Welt unter.“"],
+       es:["En 1164 llegaron a Colonia las reliquias de los Reyes Magos. Para ellas hacía falta una iglesia espléndida.",
+           "Primera piedra en 1248, obras paradas hacia 1530. Durante siglos hubo una grúa de madera en la torre sur. La catedral se terminó en 1880: ¡más de 600 años de obras!",
+           "Mide 157 metros. De 1880 a 1884 fue el edificio más alto del mundo.",
+           "Estilo: gótico, siguiendo el modelo de las catedrales francesas.",
+           "En la Segunda Guerra Mundial la alcanzaron 14 bombas, pero siguió en pie.",
+           "Patrimonio de la Humanidad desde 1996. Se dice: «Cuando la catedral esté terminada, se acabará el mundo»."]},
+  such:{de:["Kopf in den Nacken: Wie hoch schätzt ihr die Türme?","Seht ihr helle und dunkle Steine? Die hellen sind neu restauriert.","Findet ihr die Fabelwesen am Dach? Aus ihren Mäulern läuft das Regenwasser (Wasserspeier).","Wo wird gerade gebaut? Irgendwo steht immer ein Gerüst.","Wie viele Figuren seht ihr über den Türen?"],
+        es:["Mirad hacia arriba: ¿qué altura creéis que tienen las torres?","¿Veis piedras claras y oscuras? Las claras están restauradas.","¿Encontráis los seres fantásticos del tejado? Por su boca sale el agua de lluvia (gárgolas).","¿Dónde hay obras ahora mismo? Siempre hay un andamio en algún sitio.","¿Cuántas figuras veis encima de las puertas?"]},
+  tipp:{de:"Der Dom ist so dunkel, weil der Stein durch Schmutz und Ruß eine Patina bekommen hat.", es:"La catedral es tan oscura porque la piedra ha cogido una pátina de suciedad y hollín."}},
+
+ {id:"dom-innen", t:{de:"Der Dom von innen", es:"La catedral por dentro"}, o:{de:"Vor dem Eingang: Suchaufträge verteilen", es:"Antes de entrar: repartir las tareas de búsqueda"},
+  such:{de:["Sucht hinter dem Altar einen großen goldenen Kasten. Das ist der Dreikönigenschrein – wegen ihm gibt es den Dom.","Findet ihr ein Fenster, das aussieht wie ein bunter Computerbildschirm? Das Richter-Fenster hat über 11.000 Farbquadrate.","Sucht ein dunkles Holzkreuz. Das Gerokreuz ist über 1000 Jahre alt.","Schaut nach oben ins Gewölbe. Fühlt ihr euch klein?"],
+        es:["Buscad detrás del altar un gran cofre dorado. Es el relicario de los Reyes Magos: por él existe la catedral.","¿Encontráis una vidriera que parece una pantalla de ordenador? La vidriera de Richter tiene más de 11.000 cuadrados de colores.","Buscad una cruz oscura de madera. La cruz de Gero tiene más de 1000 años.","Mirad hacia arriba, a las bóvedas. ¿Os sentís pequeños?"]},
+  tipp:{de:"Vorher sagen: leise sein und Mützen ab!", es:"Decidlo antes: ¡silencio y gorras fuera!"}},
+
+ {id:"rgm", bilder:[["dionysos-statue.jpg",{de:"Dionysos, der Gott des Weins",es:"Dioniso, el dios del vino"}],["dionysos-mosaik-tafel.jpg",{de:"Infotafel zum Dionysos-Mosaik",es:"Panel informativo sobre el mosaico de Dioniso"}]], t:{de:"Römisch-Germanisches Museum", es:"Museo Romano-Germánico"}, o:{de:"Roncalliplatz, neben dem Dom", es:"Plaza Roncalli, junto a la catedral"},
+  sag:{de:["1941 wollte man hier einen Luftschutzbunker bauen und stieß dabei auf das Dionysos-Mosaik.","Es stammt aus der Zeit um 220–230 n. Chr. und lag im Speisesaal einer reichen römischen Villa.","Es ist etwa 70 m² groß und besteht aus über einer Million Steinchen. Zu sehen sind Dionysos, der Gott des Weins, und Szenen vom Feiern.","Das Museum wurde 1974 genau über dem Fundort gebaut: Das Mosaik liegt noch an seinem Originalplatz."],
+       es:["En 1941 se quería construir aquí un refugio antiaéreo y se encontró el mosaico de Dioniso.","Es de hacia el 220–230 d. C. y estaba en el comedor de una rica villa romana.","Mide unos 70 m² y tiene más de un millón de teselas. Se ven Dioniso, el dios del vino, y escenas de fiesta.","El museo se construyó en 1974 justo encima del hallazgo: el mosaico sigue en su sitio original."]},
+  frag:{de:"Stellt euch vor, ihr grabt einen Bunker und findet so etwas. Was würdet ihr denken?", es:"Imaginad que estáis cavando un búnker y encontráis algo así. ¿Qué pensaríais?"},
+  tipp:{de:"Das Museum wird saniert. Vorher prüfen, ob man durch die Scheibe etwas sieht.", es:"El museo está en obras. Comprobad antes si se ve algo por el cristal."}},
+
+ {id:"hafenstrasse", t:{de:"Römische Hafenstraße", es:"Calle romana del puerto"}, o:{de:"Neben dem Römisch-Germanischen Museum", es:"Junto al Museo Romano-Germánico"},
+  sag:{de:["Das sind echte römische Pflastersteine, fast 2000 Jahre alt.","Die Straße führte von der Stadt hinunter zum Hafen. Damals lag der Rhein näher an der Stadt.","Sie ist steil, weil die römische Stadt auf einer Anhöhe lag – geschützt vor Hochwasser."],
+       es:["Son adoquines romanos auténticos, de casi 2000 años.","La calle bajaba de la ciudad al puerto. Entonces el Rin estaba más cerca de la ciudad.","Es empinada porque la ciudad romana estaba en una colina, protegida de las inundaciones."]},
+  such:{de:["Lauft ein Stück drüber. Wie fühlt sich das an?","Seht ihr Rillen oder abgenutzte Stellen?"], es:["Caminad un poco por encima. ¿Qué tal se anda?","¿Veis surcos o partes desgastadas?"]},
+  frag:{de:"Stellt euch vor, ihr zieht hier einen Karren mit Waren hoch!", es:"¡Imaginad que subís por aquí un carro lleno de mercancías!"}},
+
+ {id:"rhein", t:{de:"Der Rhein & das Stapelrecht", es:"El Rin y el derecho de almacenamiento"}, o:{de:"Rheinufer", es:"Orilla del Rin"},
+  sag:{de:["Bei den Römern war der Rhein die Grenze des Reiches. Links das römische Gebiet, rechts die Germanen. Köln war ein wichtiger Stützpunkt.","Vor der Stadt lag eine kleine Insel mit einem geschützten Hafen dahinter. Im Süden lag die römische Rheinflotte (Köln-Marienburg).","Über den Rhein kamen Wein, Öl und Keramik bis aus dem Mittelmeerraum.","Ab 1259 hatte Köln das Stapelrecht: Jedes Schiff musste anlegen und seine Waren drei Tage lang in Köln zum Verkauf anbieten. Erst dann durfte es weiterfahren.","So wurde Köln reich, eine der größten Handelsstädte des Mittelalters und Mitglied der Hanse. Das Stapelrecht endete erst 1831."],
+       es:["En época romana, el Rin era la frontera del Imperio. A la izquierda, territorio romano; a la derecha, los germanos. Colonia era una base importante.","Delante de la ciudad había una pequeña isla con un puerto protegido detrás. Al sur estaba la flota romana del Rin (Colonia-Marienburg).","Por el Rin llegaban vino, aceite y cerámica, incluso del Mediterráneo.","Desde 1259 Colonia tuvo el derecho de almacenamiento: todo barco tenía que parar y ofrecer sus mercancías a la venta durante tres días. Solo después podía seguir.","Así Colonia se hizo rica, fue una de las mayores ciudades comerciales de la Edad Media y miembro de la Hansa. Este derecho no se abolió hasta 1831."]},
+  frag:{de:"Ihr seid Händler mit Wein aus dem Süden. Wie fändet ihr das Stapelrecht?", es:"Sois comerciantes con vino del sur. ¿Qué os parecería este derecho?"},
+  tipp:{de:"Vergleich für Schüler: Als müsste jeder Lieferwagen drei Tage auf dem Schulhof stehen, und ihr dürftet euch zuerst das Beste aussuchen.", es:"Comparación: es como si cada camión de reparto tuviera que quedarse tres días en el patio del colegio y vosotros pudierais elegir primero lo mejor."}},
+
+ {id:"alter-markt", t:{de:"Alter Markt & Karneval", es:"Alter Markt y el carnaval"}, o:{de:"Alter Markt", es:"Plaza Alter Markt"},
+  sag:{de:["Die Karnevalssession beginnt jedes Jahr am 11.11. um 11:11 Uhr – genau hier wird gefeiert.","An Weiberfastnacht schneiden Frauen den Männern die Krawatten ab. Am Rosenmontag zieht der große Umzug durch die Stadt.","Den organisierten Karneval mit Rosenmontagszug gibt es seit 1823.","Das Dreigestirn: Prinz, Bauer und Jungfrau. Die Jungfrau wird traditionell von einem Mann gespielt!","Man ruft „Kölle Alaaf!“, und vom Zug fliegen Süßigkeiten, die „Kamelle“."],
+       es:["La temporada de carnaval empieza cada año el 11/11 a las 11:11 h, y se celebra justo aquí.","En el «jueves de las mujeres» (Weiberfastnacht), las mujeres cortan las corbatas a los hombres. El lunes de carnaval (Rosenmontag) el gran desfile recorre la ciudad.","El carnaval organizado con desfile existe desde 1823.","El «Dreigestirn»: Príncipe, Campesino y Doncella. ¡La Doncella la interpreta tradicionalmente un hombre!","Se grita «Kölle Alaaf!» y desde las carrozas se tiran caramelos, los «Kamelle»."]},
+  such:{de:["Wer findet den Kallendresser? Eine Figur an einem Haus, die dem Rathaus den nackten Po zeigt – ein Spott auf die Politiker.","Mitten auf dem Platz: der Jan-von-Werth-Brunnen mit der Liebesgeschichte von Jan und Griet."],
+        es:["¿Quién encuentra al «Kallendresser»? Una figura en una casa que le enseña el trasero al ayuntamiento: una burla a los políticos.","En el centro de la plaza: la fuente de Jan von Werth, con la historia de amor de Jan y Griet."]},
+  frag:{de:"Alle zusammen: „Kölle Alaaf!“", es:"Todos juntos: «Kölle Alaaf!»"}},
+
+ {id:"rathaus", t:{de:"Das Rathaus", es:"El ayuntamiento"}, o:{de:"Rathausplatz", es:"Plaza del ayuntamiento"},
+  sag:{de:["Eines der ältesten Rathäuser Deutschlands. Der Ratsturm wurde um 1410 gebaut, an ihm stehen 124 Figuren berühmter Kölner.","Die Rathauslaube ist eine prächtige Vorhalle aus der Renaissance, um 1570. Eines der schönsten Renaissance-Bauwerke Deutschlands.","Der schlichte Betonbau ist der „Spanische Bau“ aus der Nachkriegszeit. Den Namen hat er von einem Vorgängerbau, in dem um 1600 spanische Gesandte getagt haben sollen.","Im Krieg wurde die Altstadt fast ganz zerstört. Manches wurde originalgetreu wieder aufgebaut, anderes ganz modern."],
+       es:["Uno de los ayuntamientos más antiguos de Alemania. La torre se construyó hacia 1410 y tiene 124 figuras de personajes famosos de Colonia.","La «Rathauslaube» es un pórtico renacentista de hacia 1570, una de las obras renacentistas más bellas de Alemania.","El sencillo edificio de hormigón es el «Edificio Español», de la posguerra. Debe su nombre a un edificio anterior donde, según se cuenta, se reunieron enviados españoles hacia 1600.","En la guerra el casco antiguo quedó casi totalmente destruido. Una parte se reconstruyó fielmente y otra se hizo totalmente moderna."]},
+  such:{de:["Unter der Uhr am Ratsturm: der Platzjabbeck. Zur vollen Stunde streckt er die Zunge raus!"], es:["Debajo del reloj de la torre está el «Platzjabbeck». ¡A cada hora en punto saca la lengua!"]},
+  frag:{de:"Stellt euch mit dem Rücken zum Beton, dann zur Laube. Was gefällt euch besser – und warum?", es:"Poneos de espaldas al hormigón y luego al pórtico. ¿Qué os gusta más y por qué?"}},
+
+ {id:"praetorium", t:{de:"Das Praetorium", es:"El Pretorio"}, o:{de:"Unter dem Rathaus", es:"Debajo del ayuntamiento"},
+  sag:{de:["Hier stand der Palast des römischen Statthalters. Er regierte die Provinz Niedergermanien bis an die Nordsee – Köln war eine Art Hauptstadt.","Entdeckt wurde er nach dem Zweiten Weltkrieg beim Wiederaufbau des Rathauses.","Der Palast stammt aus dem 1. Jahrhundert und wurde über 300 Jahre lang immer wieder umgebaut.","Heute gehört er zum Museum MiQua (Jüdisches Museum im Archäologischen Quartier), das noch gebaut wird."],
+       es:["Aquí estaba el palacio del gobernador romano. Gobernaba la provincia de Germania Inferior hasta el mar del Norte: Colonia era una especie de capital.","Se descubrió tras la Segunda Guerra Mundial, al reconstruir el ayuntamiento.","El palacio es del siglo I y se reformó una y otra vez durante más de 300 años.","Hoy forma parte del museo MiQua (Museo Judío en el Barrio Arqueológico), que todavía está en obras."]},
+  frag:{de:"Ihr steht gerade über dem Büro des mächtigsten Mannes der Gegend vor 2000 Jahren!", es:"¡Estáis justo encima del despacho del hombre más poderoso de la región hace 2000 años!"}},
+
+ {id:"koelnisch-wasser", t:{de:"Kölnisch Wasser", es:"Agua de Colonia"}, o:{de:"Farina-Duftmuseum, beim Alter Markt", es:"Museo de la Fragancia Farina, junto al Alter Markt"},
+  sag:{de:["Der Italiener Johann Maria Farina erfand 1709 in Köln einen frischen Duft, der ihn an einen italienischen Frühlingsmorgen erinnerte.","Er nannte ihn nach seiner neuen Heimat „Eau de Cologne“. Die Firma ist die älteste Parfümfabrik der Welt.","Später kam 4711 von Wilhelm Mülhens. Der Name ist eine Hausnummer: Die Franzosen nummerierten um 1800 alle Häuser der Stadt einfach durch, und sein Haus in der Glockengasse bekam die 4711.","Französische Soldaten brachten den Duft mit nach Hause, so wurde er weltberühmt."],
+       es:["El italiano Johann Maria Farina creó en 1709 en Colonia un perfume fresco que le recordaba una mañana de primavera en Italia.","Lo llamó como su nueva ciudad: «Eau de Cologne». Su empresa es la fábrica de perfumes más antigua del mundo.","Más tarde llegó 4711, de Wilhelm Mülhens. El nombre es un número de casa: hacia 1800, los franceses numeraron seguidas todas las casas de la ciudad, y la suya, en la Glockengasse, recibió el 4711.","Los soldados franceses se llevaron el perfume a casa y así se hizo famoso en todo el mundo."]},
+  frag:{de:"Was glaubt ihr: Warum heißt das Parfüm 4711?", es:"¿Qué creéis: por qué el perfume se llama 4711?"}},
+
+ {id:"fischmarkt", t:{de:"Fischmarkt", es:"El Fischmarkt"}, o:{de:"Zwischen Groß St. Martin und Rhein", es:"Entre San Martín y el Rin"},
+  sag:{de:["Hier wurde im Mittelalter wirklich Fisch verkauft, frisch aus dem Rhein.","In der Römerzeit lag genau hier die kleine Rheininsel vor dem Hafen. Später wurde der Rheinarm zugeschüttet.","Das große Gebäude am Rhein ist das Stapelhaus: früher Fischkaufhaus und Lager für die Waren des Stapelrechts.","Die schmalen, bunten Giebelhäuser sind das bekannteste Postkartenmotiv der Altstadt."],
+       es:["En la Edad Media aquí se vendía de verdad pescado, recién sacado del Rin.","En época romana, justo aquí estaba la pequeña isla delante del puerto. Más tarde se rellenó el brazo del río.","El gran edificio junto al Rin es el «Stapelhaus»: antes lonja de pescado y almacén para las mercancías del derecho de almacenamiento.","Las casas estrechas y de colores son la postal más famosa del casco antiguo."]},
+  frag:{de:"Macht ein Foto – das ist das bekannteste Altstadtmotiv von Köln!", es:"Haced una foto: ¡es la imagen más famosa del casco antiguo de Colonia!"}},
+
+ {id:"gross-st-martin", t:{de:"Groß St. Martin", es:"Gran San Martín"}, o:{de:"Altstadt am Rhein", es:"Casco antiguo junto al Rin"},
+  sag:{de:["Romanisch, gebaut etwa 1150–1250 – also älter als der Dom.","Der dicke Vierungsturm mit vier kleinen Ecktürmen prägt die Altstadt-Silhouette.","Die Kirche steht auf der ehemaligen Rheininsel. Darunter fand man Reste römischer Lagerhallen.","Früher eine Benediktinerabtei, heute leben hier die Gemeinschaften von Jerusalem.","Im Krieg stark zerstört, erst 1985 fertig wieder aufgebaut.","Sie gehört zu den zwölf großen romanischen Kirchen Kölns – einzigartig in Europa."],
+       es:["Románica, construida hacia 1150–1250: más antigua que la catedral.","La gruesa torre central con cuatro torrecillas marca la silueta del casco antiguo.","La iglesia está sobre la antigua isla del Rin. Debajo se encontraron restos de almacenes romanos.","Antes fue una abadía benedictina; hoy viven aquí las Fraternidades Monásticas de Jerusalén.","Muy dañada en la guerra, no se terminó de reconstruir hasta 1985.","Es una de las doce grandes iglesias románicas de Colonia, algo único en Europa."]},
+  frag:{de:"Vergleicht den Turm mit dem Dom. Was ist anders? (Romanisch: massiv und rund – gotisch: spitz und hoch)", es:"Comparad la torre con la catedral. ¿Qué es diferente? (Románico: macizo y redondeado; gótico: puntiagudo y alto)"}},
+
+ {id:"tuennes-schael", t:{de:"Tünnes und Schäl", es:"Tünnes y Schäl"}, o:{de:"Kleine Gasse bei Groß St. Martin", es:"Callejuela junto a San Martín"},
+  sag:{de:["Die beiden kommen aus dem Hänneschen-Theater, dem Kölner Puppentheater, das es seit 1802 gibt.","Tünnes ist gutmütig, etwas naiv, kommt vom Land und hat eine dicke Knollennase.","Schäl ist der gerissene Städter. „Schäl“ heißt auf Kölsch „schielend“ – einer, der einen nicht ehrlich anschaut.","In Köln gibt es unzählige Tünnes-und-Schäl-Witze."],
+       es:["Los dos vienen del Hänneschen, el teatro de marionetas de Colonia, que existe desde 1802.","Tünnes es bonachón, algo ingenuo, viene del campo y tiene una nariz gorda.","Schäl es el listillo de la ciudad. «Schäl» significa «bizco» en dialecto de Colonia: alguien que no te mira con honradez.","En Colonia hay muchísimos chistes de Tünnes y Schäl."]},
+  frag:{de:"Warum glänzt die Nase von Tünnes so? (Reiben bringt Glück – jeder darf einmal!)", es:"¿Por qué brilla tanto la nariz de Tünnes? (Frotarla trae suerte: ¡todos pueden probar!)"}},
+
+ {id:"madonna", t:{de:"Madonna in den Trümmern", es:"La Virgen de las Ruinas"}, o:{de:"Kolumbastraße, ca. 10 Min. vom Alter Markt", es:"Kolumbastraße, a unos 10 min del Alter Markt"},
+  sag:{de:["Hier stand die gotische Kirche St. Kolumba. 1945 wurde sie fast ganz zerstört.","In den Ruinen blieb eine spätgotische Madonnenfigur an einem Pfeiler unversehrt – für die Kölner ein Zeichen der Hoffnung.","Gottfried Böhm baute 1949/50 eine kleine Kapelle um die Figur.","Darüber steht heute das Kunstmuseum Kolumba von Peter Zumthor (2007)."],
+       es:["Aquí estaba la iglesia gótica de Santa Columba. En 1945 quedó casi totalmente destruida.","Entre las ruinas, una figura de la Virgen del gótico tardío quedó intacta en un pilar: para la gente de Colonia, un símbolo de esperanza.","Gottfried Böhm construyó en 1949/50 una pequeña capilla alrededor de la figura.","Encima está hoy el museo de arte Kolumba, de Peter Zumthor (2007)."]},
+  such:{de:["Findet die Stelle, wo alte Ruinenmauer und neue helle Ziegel zusammenstoßen!"], es:["¡Encontrad el punto donde el muro en ruinas se une con los ladrillos claros nuevos!"]},
+  tipp:{de:"Weg vom Alter Markt: über die Hohe Straße und die Brückenstraße nach Westen.", es:"Camino desde el Alter Markt: hacia el oeste por la Hohe Straße y la Brückenstraße."}}
+];
+
+function liste(a){return "<ul>"+a.map(x=>"<li>"+x+"</li>").join("")+"</ul>";}
+function box(k,titel,inhalt){return `<div class="box ${k}"><h3>${titel}</h3>${inhalt}</div>`;}
+
+function render(l){
+  const u=UI[l];
+  document.documentElement.lang=l;
+  ["untertitel","titel","intro"].forEach(k=>document.getElementById(k).textContent=u[k]);
+  document.title=u.titel+" – "+u.untertitel;
+  document.querySelectorAll(".lang a").forEach(a=>a.classList.toggle("aktiv",a.dataset.l===l));
+  document.getElementById("route").innerHTML=S.map((s,i)=>`<a href="#${s.id}" onclick="springe(event,'${s.id}')"><b>${i}</b> ${s.t[l]}</a>`).join("");
+  document.getElementById("legende").innerHTML=
+    `<span class="sag">${u.sag}</span><span class="such">${u.such}</span><span class="frag">${u.frag}</span><span class="tipp">${u.tipp}</span>`;
+  document.getElementById("stationen").innerHTML=S.map((s,i)=>{
+    let h=`<section class="station" id="${s.id}"><div class="kopf"><div class="nr">${i}</div><h2>${s.t[l]}</h2></div><p class="ort">📍 ${s.o[l]}</p>`;
+    if(s.bilder){h+=`<div class="bilder${s.bilder.length===1?" einzeln":""}">${s.bilder.map(b=>`<figure><img src="${b[0]}" alt="${b[1][l]}" loading="lazy"><figcaption>${b[1][l]}</figcaption></figure>`).join("")}</div>`;if(s.bilder.length>1)h+=`<p class="wisch">${u.wisch}</p>`;}
+    if(s.zahlen) h+=`<div class="zahlen">${s.zahlen[l].map(z=>`<div class="zahl"><strong>${z[0]}</strong><span>${z[1]}</span></div>`).join("")}</div>`;
+    if(s.sag) h+=box("sag",u.sag,liste(s.sag[l]));
+    if(s.such) h+=box("such",u.such,liste(s.such[l]));
+    if(s.frag) h+=box("frag",u.frag,"<p>"+s.frag[l]+"</p>");
+    if(s.tipp) h+=box("tipp",u.tipp,"<p>"+s.tipp[l]+"</p>");
+    const n=S[i+1];
+    h+=n?`<a class="weiter" href="#${n.id}" onclick="springe(event,'${n.id}')">${u.weiter}</a>`:`<a class="weiter" href="#" onclick="springe(event,null)">${u.nach}</a>`;
+    return h+"</section>";
+  }).join("");
+  document.getElementById("fuss").textContent=u.fuss;
+}
+let sprache="de";
+function springe(e,id){e.preventDefault();if(id)document.getElementById(id).scrollIntoView();else window.scrollTo(0,0);}
+function ausHash(){const h=location.hash.replace("#","");if(h==="de"||h==="es"){sprache=h;render(sprache);}}
+window.addEventListener("hashchange",ausHash);
+render(location.hash==="#es"?"es":"de");
+</script>
+</body>
+</html>
