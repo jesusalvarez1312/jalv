@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stadtrally Köln</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{--rot:#c8102e;--rot2:#8f0b21;--bg:#fbf7f1;--ink:#1f1d1b;--grau:#6b6560;--ok:#2e8b4a;--okbg:#e7f5ea;--nein:#c0392b;--neinbg:#fdecea;--gold:#f4b400;--karte:#fff;--linie:#e8e0d4}
+  *{box-sizing:border-box;min-width:0}
+  html{scroll-padding-top:130px}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,sans-serif;overflow-x:clip}
+  h1,h2,h3,.zahl{font-family:Outfit,system-ui,sans-serif}
+  header{background:var(--rot);color:#fff;padding:18px max(4vw,16px) 22px;position:relative;overflow:hidden}
+  header svg.dom{position:absolute;right:-10px;bottom:-6px;height:120px;opacity:.18}
+  .sprachen{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;position:relative;z-index:1}
+  .sprachen button{font:600 14px Inter,sans-serif;color:#fff;background:transparent;border:2px solid rgba(255,255,255,.8);border-radius:99px;padding:6px 12px;min-height:36px;cursor:pointer}
+  .sprachen button.an{background:#fff;color:var(--rot)}
+  header h1{margin:0;font-size:clamp(30px,7vw,46px);line-height:1.05;position:relative}
+  header p{margin:6px 0 0;opacity:.92;position:relative}
+  .leiste{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--linie);box-shadow:0 2px 8px rgba(0,0,0,.05)}
+  .stand{display:flex;justify-content:space-between;gap:10px;padding:10px max(4vw,16px);align-items:center}
+  .stand div{text-align:center;flex:1}
+  .stand .zahl{display:block;font-size:24px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+  .stand small{color:var(--grau);font-size:13px}
+  .stand .spaet .zahl{color:var(--nein)}
+  .tabs{display:flex;overflow-x:auto;gap:6px;padding:0 max(4vw,16px) 10px;scrollbar-width:none}
+  .tabs button{flex:none;font:600 14px Inter,sans-serif;border:1px solid var(--linie);background:var(--bg);border-radius:99px;padding:8px 14px;min-height:40px;cursor:pointer;color:var(--ink)}
+  .tabs button.an{background:var(--rot);color:#fff;border-color:var(--rot)}
+  .tabs button .mini{font-weight:400;opacity:.75;margin-left:4px}
+  main{max-width:760px;margin:0 auto;padding:18px max(4vw,16px) 60px}
+  h2{font-size:28px;margin:6px 0 4px;line-height:1.1}
+  .hinweis{color:var(--grau);margin:0 0 16px}
+  .karte{background:var(--karte);border-radius:16px;padding:16px;margin:0 0 12px;box-shadow:0 1px 6px rgba(0,0,0,.05);border:1px solid transparent}
+  .karte.fertig{border-color:var(--ok);background:var(--okbg)}
+  .start label{font-weight:600;display:block;margin-bottom:6px}
+  input[type=text]{width:100%;font:16px Inter,sans-serif;padding:12px 14px;border:2px solid var(--linie);border-radius:12px;background:#fff;color:var(--ink)}
+  input[type=text]:focus,button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+  .knopf{font:700 17px Outfit,sans-serif;border:0;border-radius:12px;padding:14px 18px;min-height:48px;cursor:pointer;background:var(--rot);color:#fff;width:100%;margin-top:12px}
+  .knopf.zweit{background:#fff;color:var(--rot);border:2px solid var(--rot)}
+  .knopf:disabled{opacity:.45;cursor:default}
+  .regeln li{margin:6px 0}
+  .aufgabe{display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+  .haken{flex:none;width:34px;height:34px;border-radius:10px;border:2px solid var(--linie);display:grid;place-items:center;background:#fff;font-weight:800;color:#fff;margin-top:2px}
+  .fertig .haken{background:var(--ok);border-color:var(--ok)}
+  .aufgabe .nr{font:700 13px Outfit,sans-serif;color:var(--rot)}
+  .aufgabe p{margin:0}
+  .pkt{flex:none;margin-left:auto;font:700 13px Outfit,sans-serif;color:var(--grau);white-space:nowrap}
+  .ort{font-weight:700;font-size:18px;font-family:Outfit,sans-serif;margin:0 0 6px}
+  .clue{background:var(--bg);border-radius:10px;padding:10px 12px;margin:0 0 10px;font-size:15px}
+  .clue b,.foto b{color:var(--rot)}
+  .foto{margin:0 0 10px}
+  .gruppe{font:700 13px Inter,sans-serif;color:var(--grau);margin:20px 0 8px;letter-spacing:.02em}
+  .frage p{margin:0 0 10px}
+  .antwort{display:flex;gap:8px}
+  .antwort input{flex:1}
+  .antwort button{flex:none;font:700 15px Outfit,sans-serif;border:0;border-radius:12px;padding:0 16px;min-height:48px;background:var(--ink);color:#fff;cursor:pointer}
+  .meldung{margin-top:8px;font-weight:600;font-size:15px}
+  .meldung.ja{color:var(--ok)} .meldung.nein{color:var(--nein)}
+  .ergebnis table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+  .ergebnis td{padding:9px 0;border-bottom:1px solid var(--linie)}
+  .ergebnis td:last-child{text-align:right;font-weight:700;white-space:nowrap}
+  .ergebnis tr.gesamt td{font:800 22px Outfit,sans-serif;border-bottom:0;color:var(--rot)}
+  .gross{text-align:center;padding:24px 16px}
+  .gross .zahl{font-size:clamp(56px,16vw,88px);font-weight:800;color:var(--rot);line-height:1}
+  .warnung{background:var(--neinbg);color:var(--nein);border-radius:12px;padding:12px;font-weight:600;margin:10px 0}
+  .dialog{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;place-items:center;z-index:50;padding:20px}
+  .dialog.offen{display:grid}
+  .dialog .karte{max-width:360px;width:100%;text-align:center}
+  .zeile{display:flex;gap:10px}
+  .zeile .knopf{margin-top:10px}
+  footer{text-align:center;color:var(--grau);font-size:13px;padding:0 16px 30px}
+  @media (prefers-reduced-motion:no-preference){.karte{transition:background .25s,border-color .25s}}
+</style>
+</head>
+<body>
+<header>
+  <svg class="dom" viewBox="0 0 100 90" aria-hidden="true"><path fill="#fff" d="M20 90V35l5-25 5 25v55zM70 90V35l5-25 5 25v55zM28 90V55h44v35z"/></svg>
+  <div class="sprachen" id="sprachen"></div>
+  <h1 id="titel"></h1>
+  <p id="sub"></p>
+</header>
+<div class="leiste">
+  <div class="stand">
+    <div id="zeitbox"><span class="zahl" id="zeit">0:00</span><small id="zeitLabel"></small></div>
+    <div><span class="zahl" id="punkte">0</span><small id="punkteLabel"></small></div>
+  </div>
+  <div class="tabs" id="tabs"></div>
+</div>
+<main id="inhalt"></main>
+<footer>Jesús Álvarez · Stadtrally Köln</footer>
+<div class="dialog" id="dialog"><div class="karte"><p id="dialogText" style="font-weight:600;margin:0 0 6px"></p><div class="zeile"><button class="knopf zweit" id="dlgNein"></button><button class="knopf" id="dlgJa"></button></div></div></div>
+
+<script>
+{
+const L=["de","es","en","eu"];
+const NAMEN={de:"DE",es:"ES",en:"EN",eu:"EUS"};
+const T={
+ titel:["Stadtrally Köln","Gymkana por Colonia","Cologne Scavenger Hunt","Kolonia: hiri-gymkana"],
+ sub:["Spielen, suchen und Köln entdecken","Jugar, buscar y descubrir Colonia","Play, search and discover Cologne","Jolastu, bilatu eta ezagutu Kolonia"],
+ zeit:["Zeit","Tiempo","Time","Denbora"],
+ punkte:["Punkte","Puntos","Points","Puntuak"],
+ tab:[["Start","Inicio","Start","Hasiera"],["Fotos","Fotos","Photos","Argazkiak"],["Schatzsuche","Tesoro","Treasure","Altxorra"],["Wahrzeichen","Lugares","Landmarks","Ikurrak"],["Rätsel","Enigmas","Riddles","Igarkizunak"],["Ergebnis","Resultado","Result","Emaitza"]],
+ teamLabel:["Euer Teamname","Nombre de vuestro equipo","Your team name","Zuen taldearen izena"],
+ teamPh:["z. B. Die Domspatzen","p. ej. Los Gorriones","e.g. The Cathedral Sparrows","adib. Katedraleko Txolarreak"],
+ los:["Los geht's – 120 Minuten laufen!","¡Vamos! Empiezan los 120 minutos","Go – the 120 minutes start now!","Goazen! 120 minutuak hasten dira"],
+ laeuft:["Die Rally läuft. Viel Erfolg!","La gymkana está en marcha. ¡Mucha suerte!","The hunt is on. Good luck!","Gymkana martxan dago. Zorte on!"],
+ regelnTitel:["So funktioniert's","Cómo funciona","How it works","Nola funtzionatzen du"],
+ regeln:[
+  ["Ihr seid ein Team und bleibt die ganze Zeit zusammen.","Sois un equipo y permanecéis juntos todo el tiempo.","You are a team and you stay together the whole time.","Talde bat zarete eta denbora guztian elkarrekin egongo zarete."],
+  ["Ihr habt höchstens 120 Minuten. Jede Minute darüber kostet 1 Punkt. Bei mehr als 15 Strafpunkten ist das Team disqualifiziert.","Tenéis como máximo 120 minutos. Cada minuto de más resta 1 punto. Con más de 15 puntos de penalización, el equipo queda descalificado.","You have a maximum of 120 minutes. Every extra minute costs 1 point. With more than 15 penalty points the team is disqualified.","Gehienez 120 minutu dituzue. Minutu gehigarri bakoitzak puntu 1 kentzen du. 15 zigor-puntu baino gehiago izanez gero, taldea kanporatuta geratzen da."],
+  ["Alle Fotos macht ihr mit einem einzigen Handy. Auf jedem Foto sind alle aus dem Team zu sehen (außer der Person, die fotografiert).","Todas las fotos se hacen con un solo móvil. En cada foto aparecen todos los miembros del equipo (menos quien hace la foto).","Take all photos with one single phone. Everyone in the team must be in every photo (except the person taking it).","Argazki guztiak mugikor bakar batekin ateratzen dira. Argazki bakoitzean taldekide guztiak agertu behar dira (argazkia ateratzen duena izan ezik)."],
+  ["Gegenstände müsst ihr nicht kaufen. Seid einfallsreich – aber nichts stehlen! Ihr bekommt alles am Ende zurück.","No hace falta comprar los objetos. Sed ingeniosos, ¡pero no robéis nada! Al final os lo devolvemos todo.","You don't have to buy the items. Be resourceful – but no stealing! You'll get everything back at the end.","Ez duzue objekturik erosi behar. Izan burutsuak, baina ez lapurtu ezer! Amaieran dena itzuliko dizuegu."],
+  ["Es gewinnt das Team mit den meisten Punkten. Bei Gleichstand gewinnt das schnellere Team.","Gana el equipo con más puntos. En caso de empate, gana el equipo más rápido.","The team with the most points wins. In case of a tie, the faster team wins.","Puntu gehien dituen taldeak irabazten du. Berdinketa izanez gero, talde azkarrenak irabazten du."],
+  ["Die Entscheidungen der Jury gelten.","Las decisiones del jurado son definitivas.","The judges' decisions are final.","Epaimahaiaren erabakiak behin betikoak dira."]
+ ],
+ ziel:["🏁 Ziel: Bushaltestelle am Schokoladenmuseum","🏁 Meta: parada de autobús del Museo del Chocolate","🏁 Finish: bus stop at the Chocolate Museum","🏁 Helmuga: Txokolate Museoko autobus-geltokia"],
+ fotosHinweis:["Je 2 Punkte. Abhaken, wenn das Foto gemacht ist. Die Jury kontrolliert am Ziel.","2 puntos cada una. Marcadla cuando tengáis la foto. El jurado lo revisa en la meta.","2 points each. Tick it off once you have the photo. The judges check at the finish.","2 puntu bakoitza. Markatu argazkia ateratakoan. Epaimahaiak helmugan egiaztatuko du."],
+ schatzHinweis:["Je 2 Punkte. Sammelt die Gegenstände in einer Tüte. Abhaken, wenn ihr sie habt.","2 puntos cada uno. Guardad los objetos en una bolsa. Marcadlos cuando los tengáis.","2 points each. Collect the items in a bag. Tick them off once you have them.","2 puntu bakoitza. Gorde objektuak poltsa batean. Markatu lortutakoan."],
+ wahrHinweis:["Je 3 Punkte. Die Orte liegen irgendwo auf eurer Route – passt gut auf!","3 puntos cada uno. Los lugares están en algún punto de vuestra ruta, ¡estad atentos!","3 points each. The places are somewhere along your route – keep your eyes open!","3 puntu bakoitza. Lekuak zuen ibilbidean nonbait daude, adi ibili!"],
+ raetselHinweis:["Je 1 Punkt. Schaut genau hin: Denkmäler, Schilder, Inschriften, Schaufenster …","1 punto cada uno. Fijaos bien: monumentos, letreros, inscripciones, escaparates…","1 point each. Look carefully: monuments, signs, inscriptions, shop windows…","Puntu 1 bakoitza. Begiratu ondo: monumentuak, kartelak, idazkunak, erakusleihoak…"],
+ erledigt:["Foto gemacht","Foto hecha","Photo taken","Argazkia eginda"],
+ hinweis:["Hinweis","Pista","Clue","Pista"],
+ aufgabe:["Foto","Foto","Photo","Argazkia"],
+ pruefen:["Prüfen","Comprobar","Check","Egiaztatu"],
+ richtig:["Richtig! +1 Punkt","¡Correcto! +1 punto","Correct! +1 point","Zuzena! +1 puntu"],
+ falsch:["Leider falsch – versucht es noch einmal.","Incorrecto. Intentadlo otra vez.","Not quite – try again.","Okerra. Saiatu berriro."],
+ jury:["Die Jury prüft diese Antwort am Ziel.","El jurado revisa esta respuesta en la meta.","The judges check this answer at the finish.","Epaimahaiak erantzun hau helmugan egiaztatuko du."],
+ gespeichert:["Gespeichert ✓","Guardado ✓","Saved ✓","Gordeta ✓"],
+ nochNichtGestartet:["Gebt zuerst unter „Start“ euren Teamnamen ein und startet die Zeit.","Primero escribid el nombre del equipo en «Inicio» y poned el tiempo en marcha.","First enter your team name under “Start” and start the clock.","Lehenik idatzi taldearen izena «Hasiera» atalean eta abiarazi denbora."],
+ amZiel:["Wir sind am Ziel!","¡Hemos llegado a la meta!","We've reached the finish!","Helmugara iritsi gara!"],
+ zielFrage:["Seid ihr wirklich am Ziel? Danach stoppt die Zeit.","¿Seguro que estáis en la meta? Después se para el tiempo.","Are you really at the finish? The clock will stop.","Benetan helmugan zaudete? Ondoren denbora geldituko da."],
+ reset:["Alles zurücksetzen","Reiniciar todo","Reset everything","Dena berrabiarazi"],
+ resetFrage:["Wirklich alles löschen? Punkte und Zeit gehen verloren.","¿Seguro que queréis borrarlo todo? Se pierden los puntos y el tiempo.","Really delete everything? Points and time will be lost.","Benetan dena ezabatu? Puntuak eta denbora galduko dira."],
+ ja:["Ja","Sí","Yes","Bai"], nein:["Abbrechen","Cancelar","Cancel","Utzi"],
+ rFotos:["Fotos „Typisch Köln“","Fotos «Típico Colonia»","Photos “Typical Cologne”","«Kolonia tipikoa» argazkiak"],
+ rSchatz:["Schatzsuche","Búsqueda del tesoro","Treasure hunt","Altxor-bilaketa"],
+ rWahr:["Wahrzeichen","Lugares emblemáticos","Landmarks","Ikurrak"],
+ rRaetsel:["Rätsel","Enigmas","Riddles","Igarkizunak"],
+ rStrafe:["Strafpunkte (Zeit)","Penalización (tiempo)","Penalty (time)","Zigorra (denbora)"],
+ rGesamt:["Gesamt","Total","Total","Guztira"],
+ rZeit:["Benötigte Zeit","Tiempo empleado","Time taken","Erabilitako denbora"],
+ disq:["Mehr als 15 Strafpunkte: Das Team ist disqualifiziert.","Más de 15 puntos de penalización: el equipo queda descalificado.","More than 15 penalty points: the team is disqualified.","15 zigor-puntu baino gehiago: taldea kanporatuta dago."],
+ zeigen:["Zeigt diesen Bildschirm der Jury.","Enseñad esta pantalla al jurado.","Show this screen to the judges.","Erakutsi pantaila hau epaimahaiari."],
+ zwischen:["Zwischenstand – die Zeit läuft noch.","Resultado provisional: el tiempo sigue corriendo.","Current score – the clock is still running.","Behin-behineko emaitza: denborak aurrera jarraitzen du."],
+ vonMax:["von 63","de 63","of 63","63tik"],
+ ueber:["Zeit überschritten!","¡Tiempo superado!","Time exceeded!","Denbora gainditu da!"]
+};
+
+const FOTOS=[
+ ["Macht ein Foto mit einer oder mehreren verkleideten Personen.","Haced una foto con una o varias personas disfrazadas.","Take a photo with one or more people in costume.","Atera argazki bat mozorrotutako pertsona batekin edo gehiagorekin."],
+ ["Stellt euch vor ein Plakat oder Schild, auf dem „Jesus“ steht.","Poneos delante de un cartel o letrero que diga «Jesus».","Stand in front of a poster or sign that says “Jesus”.","Jarri «Jesus» dioen kartel edo seinale baten aurrean."],
+ ["Fotografiert die Liebesschlösser am Geländer der Hohenzollernbrücke neben dem Dom.","Fotografiad los candados del amor en la barandilla del puente Hohenzollernbrücke, junto a la catedral.","Photograph the love locks on the railings of the Hohenzollern Bridge next to the cathedral.","Atera argazkia katedralaren ondoko Hohenzollern zubiko baranda maitasun-giltzarrapoei."],
+ ["Stellt euch zwischen eine Straßenlaterne und die Tür der Kirche Groß St. Martin.","Poneos entre una farola y la puerta de la iglesia de Groß St. Martin.","Stand between a street lamp and the door of the church Groß St. Martin.","Jarri farola baten eta Groß St. Martin elizaren atearen artean."],
+ ["Macht ein Foto mit der „Bimmelbahn“, der kleinen Bahn mit Glocke.","Haced una foto con el «Bimmelbahn», el trenecito con campana.","Take a photo with the “Bimmelbahn”, the little train with a bell.","Atera argazki bat «Bimmelbahn»-ekin, kanpaitxoa duen tren txikiarekin."],
+ ["Tanzt Walzer – mit dem Rhein im Hintergrund.","Bailad un vals con el Rin de fondo.","Dance a waltz with the Rhine in the background.","Dantzatu bals bat Rhin ibaia atzean dela."],
+ ["Stellt euch vor einen Souvenirladen.","Poneos delante de una tienda de recuerdos.","Stand in front of a souvenir shop.","Jarri oroigarri-denda baten aurrean."],
+ ["Das ganze Team trägt Karnevalshüte.","Todo el equipo lleva sombreros de carnaval.","The whole team wears carnival hats.","Talde osoak inauteri-txanoak daramatza."],
+ ["Stellt euch vor ein typisch kölsches Brauhaus.","Poneos delante de una típica cervecería de Colonia («Brauhaus»).","Stand in front of a typical Cologne “Brauhaus”.","Jarri Koloniako garagardotegi tipiko baten («Brauhaus») aurrean."],
+ ["Macht ein Foto mit jemandem im Trikot eines Fußballvereins: 1. FC Köln, Borussia Dortmund, Schalke, Fortuna Düsseldorf oder Borussia Mönchengladbach.","Haced una foto con alguien que lleve la camiseta de un equipo de fútbol: 1. FC Köln, Borussia Dortmund, Schalke, Fortuna Düsseldorf o Borussia Mönchengladbach.","Take a photo with someone wearing the shirt of a football club: 1. FC Köln, Borussia Dortmund, Schalke, Fortuna Düsseldorf or Borussia Mönchengladbach.","Atera argazki bat futbol-talde baten kamiseta daraman norbaitekin: 1. FC Köln, Borussia Dortmund, Schalke, Fortuna Düsseldorf edo Borussia Mönchengladbach."]
+];
+const SCHATZ=[
+ ["Ein Stadtplan von Köln","Un plano de Colonia","A map of Cologne","Koloniako mapa bat"],
+ ["Eine Plastiktüte von Media Markt, Aldi, Rewe oder einer Apotheke – darin könnt ihr alles sammeln","Una bolsa de plástico de Media Markt, Aldi, Rewe o de una farmacia; podéis guardar ahí lo demás","A plastic bag from Media Markt, Aldi, Rewe or a pharmacy – you can keep everything else in it","Media Markt, Aldi, Rewe edo farmazia bateko plastikozko poltsa bat; bertan gorde dezakezue gainerakoa"],
+ ["Ein Ticket für die Turmbesteigung im Südturm des Doms","Una entrada para subir a la torre sur de la catedral","A ticket for climbing the south tower of the cathedral","Katedralaren hegoaldeko dorrera igotzeko sarrera bat"],
+ ["Eine Kostprobe: Brezel, Berliner oder „Halver Hahn“","Una muestra de: Brezel, Berliner o «Halver Hahn»","A sample of: pretzel, Berliner or “Halver Hahn”","Dastatzeko zerbait: Brezel, Berliner edo «Halver Hahn»"],
+ ["Ein Ticket für Bus oder Bahn","Un billete de autobús o metro","A bus or underground ticket","Autobus edo metro txartel bat"],
+ ["Eine Postkarte mit deutschem Text (Tipp: In manchen Lokalen liegen sie gratis aus)","Una postal con texto en alemán (pista: en algunos bares las hay gratis)","A postcard with German writing (tip: some bars have free ones)","Alemanezko testua duen postal bat (pista: taberna batzuetan doan daude)"],
+ ["Eine Serviette oder ein Bierdeckel mit dem Wort „Früh“","Una servilleta o un posavasos con la palabra «Früh»","A napkin or beer mat with the word “Früh”","«Früh» hitza duen ezpainzapi edo edalontzi-azpiko bat"],
+ ["Ein Stück Bratwurst (fragt nach, wenn ihr nicht wisst, was das ist)","Un trozo de Bratwurst (preguntad si no sabéis qué es)","A piece of Bratwurst (ask if you don't know what it is)","Bratwurst zati bat (galdetu zer den ez badakizue)"],
+ ["Ein Kassenbon aus einem Restaurant oder Café","Un tique de un restaurante o una cafetería","A receipt from a restaurant or café","Jatetxe edo kafetegi bateko tiketa"],
+ ["Ein Prospekt vom Rathaus oder von einem Hotel","Un folleto del ayuntamiento o de un hotel","A leaflet from the town hall or a hotel","Udaletxeko edo hotel bateko liburuxka bat"]
+];
+const WAHR=[
+ {o:["Tünnes und Schäl","Tünnes y Schäl","Tünnes and Schäl","Tünnes eta Schäl"],
+  h:["„Tünnes“ ist Kölsch für Anton: ein gutmütiger Mann vom Land mit dicker Nase. Schäl ist dünner und schielt – „schäl“ heißt bei den Kölnern: nicht ganz ehrlich. Die Figuren stehen bei Groß St. Martin.","«Tünnes» es Antonio en dialecto de Colonia: un hombre bonachón del campo con una gran nariz. Schäl es más delgado y bizco; para la gente de Colonia, «schäl» significa poco honrado. Están junto a Groß St. Martin.","“Tünnes” is Cologne dialect for Anthony: a good-natured country man with a big nose. Schäl is thinner and cross-eyed – for people from Cologne “schäl” means not quite honest. They stand near Groß St. Martin.","«Tünnes» Antonio da Koloniako hizkeran: sudur handiko landa-gizon onbera. Schäl argalagoa eta begi-okerra da; koloniarrentzat «schäl» ez oso zintzoa da. Groß St. Martin ondoan daude."],
+  f:["Berührt alle die Nasen der beiden Figuren.","Tocad todos la nariz de las dos figuras.","All of you touch the noses of the two figures.","Ukitu denok bi irudien sudurrak."]},
+ {o:["Fischmarkt","Fischmarkt (mercado del pescado)","Fischmarkt (fish market)","Fischmarkt (arrain-azoka)"],
+  h:["Im Martinsviertel war früher der Fischmarkt. Dahinter stehen schmale, bunte Häuser – das berühmteste Postkartenmotiv der Altstadt.","En el barrio de San Martín estaba antes el mercado del pescado. Detrás hay casas estrechas de colores: la postal más famosa del casco antiguo.","The fish market used to be in the Martin quarter. Behind it are narrow, colourful houses – the most famous postcard view of the old town.","San Martin auzoan zegoen lehen arrain-azoka. Atzean etxe estu eta koloretsuak daude: alde zaharreko postalik ospetsuena."],
+  f:["Haltet euch alle die Ohren zu – die bunten Häuser im Hintergrund.","Tapaos todos las orejas, con las casas de colores al fondo.","All of you cover your ears, with the colourful houses in the background.","Estali denok belarriak, etxe koloretsuak atzean direla."]},
+ {o:["Heinzelmännchenbrunnen","Fuente de los Heinzelmännchen","Heinzelmännchen Fountain","Heinzelmännchen iturria"],
+  h:["Der Brunnen steht beim Dom, direkt neben einem Brauhaus. Die Sage: Früher erledigten kleine Zwerge nachts heimlich die Arbeit der Kölner. Eine neugierige Schneidersfrau streute Erbsen, um sie zu sehen. Die Zwerge stolperten und kamen nie wieder.","La fuente está junto a la catedral, al lado de una cervecería. La leyenda: antes, unos pequeños duendes hacían por la noche en secreto el trabajo de la gente de Colonia. La curiosa mujer de un sastre esparció guisantes para verlos. Los duendes tropezaron y no volvieron nunca.","The fountain is near the cathedral, right next to a Brauhaus. The legend: little gnomes used to secretly do the people's work at night. A curious tailor's wife scattered peas to see them. The gnomes tripped and never came back.","Iturria katedralaren ondoan dago, garagardotegi baten alboan. Kondaira: iratxo txikiek gauez ezkutuan egiten zuten koloniarren lana. Jostun baten emazte jakin-minak ilarrak bota zituen haiek ikusteko. Iratxoek estropezu egin zuten eta ez ziren inoiz itzuli."],
+  f:["Spielt fleißige Heinzelmännchen: Alle arbeiten pantomimisch.","Haced de duendes trabajadores: todos trabajáis con mímica.","Act as busy gnomes: everyone mimes working.","Egin iratxo langileena: denok mimikaz lan egiten."]},
+ {o:["Ostermann-Brunnen","Fuente de Ostermann","Ostermann Fountain","Ostermann iturria"],
+  h:["Der Brunnen steht seit 1939 auf einem Platz in der Innenstadt. Seine Figuren erinnern an die Lieder des Kölner Sängers Willi Ostermann.","La fuente está desde 1939 en una plaza del centro. Sus figuras recuerdan las canciones del cantante de Colonia Willi Ostermann.","Since 1939 the fountain has stood on a square in the city centre. Its figures recall the songs of Cologne singer Willi Ostermann.","1939tik dago iturria erdiguneko plaza batean. Bere irudiek Willi Ostermann abeslari koloniarraren abestiak gogorarazten dituzte."],
+  f:["Singt alle zusammen!","¡Cantad todos juntos!","Sing all together!","Abestu denok batera!"]},
+ {o:["Jan-von-Werth-Brunnen","Fuente de Jan von Werth","Jan von Werth Fountain","Jan von Werth iturria"],
+  h:["Er steht mitten auf dem Alter Markt. Die Geschichte: Der Knecht Jan liebte die Magd Griet, aber sie wollte keinen armen Knecht. Jan wurde ein berühmter General. Als er Jahre später zurückkam, war Griet immer noch allein.","Está en el centro del Alter Markt. La historia: el mozo Jan amaba a la criada Griet, pero ella no quería a un mozo pobre. Jan se convirtió en un general famoso. Cuando volvió años después, Griet seguía sola.","It stands in the middle of the Alter Markt. The story: the farmhand Jan loved the maid Griet, but she didn't want a poor farmhand. Jan became a famous general. When he came back years later, Griet was still alone.","Alter Markt plazaren erdian dago. Istorioa: Jan morroiak Griet neskamea maite zuen, baina hark ez zuen morroi pobre bat nahi. Jan jeneral ospetsu bihurtu zen. Urte batzuk geroago itzuli zenean, Griet bakarrik zegoen oraindik."],
+  f:["Spielt die Szene nach: Jan kommt als General zurück und trifft Griet.","Representad la escena: Jan vuelve como general y se encuentra con Griet.","Act out the scene: Jan returns as a general and meets Griet.","Antzeztu eszena: Jan jeneral gisa itzuli eta Griet aurkitzen du."]}
+];
+const N=s=>s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/ß/g,"ss").replace(/[^a-z0-9]/g,"");
+const RAETSEL=[
+ {g:["Kölner Dom und Umgebung","La catedral y sus alrededores","Cologne Cathedral and surroundings","Kolonia katedrala eta inguruak"]},
+ {q:["Wie hoch ist der Dom? (in Metern, ganze Zahl)","¿Cuánto mide la catedral? (en metros, número entero)","How tall is the cathedral? (in metres, whole number)","Zenbat neurtzen du katedralak? (metrotan, zenbaki osoa)"],ok:a=>/^157/.test(a)},
+ {q:["Ergänzt die Inschrift im Dom: „GOTT SEI IHREN SEELEN …“","Completad la inscripción de la catedral: «GOTT SEI IHREN SEELEN …»","Complete the inscription in the cathedral: “GOTT SEI IHREN SEELEN …”","Osatu katedraleko idazkuna: «GOTT SEI IHREN SEELEN …»"],ok:a=>["gnadig","gnaedig"].includes(a)},
+ {q:["Welches Tier ist auf dem Türklopfer am Dom zu sehen?","¿Qué animal aparece en el llamador de la puerta de la catedral?","Which animal is on the door knocker of the cathedral?","Zer animalia ageri da katedralaren ateko danbolinean?"],ok:a=>/(lowe|loewe|leon|lion|lehoi)/.test(a)},
+ {q:["Der Petrusbrunnen ist nicht weit vom Dom. Woraus kommt das Wasser?","La fuente de San Pedro (Petrusbrunnen) está cerca de la catedral. ¿Por dónde sale el agua?","The Petrusbrunnen (St Peter's Fountain) is near the cathedral. Where does the water come out?","Petrusbrunnen iturria katedraletik gertu dago. Nondik ateratzen da ura?"],ok:a=>/(lowe|loewe|leon|lion|lehoi|maul|mund|boca|mouth|aho)/.test(a)},
+ {g:["Wallrafplatz und Glockengasse","Wallrafplatz y Glockengasse","Wallrafplatz and Glockengasse","Wallrafplatz eta Glockengasse"]},
+ {q:["In welchem Jahr wurde Ferdinand Franz Wallraf geboren?","¿En qué año nació Ferdinand Franz Wallraf?","In which year was Ferdinand Franz Wallraf born?","Zein urtetan jaio zen Ferdinand Franz Wallraf?"],ok:a=>a==="1748"},
+ {q:["Nennt drei Geschäfte auf der Hohe Straße, die mit demselben Buchstaben anfangen.","Nombrad tres tiendas de la Hohe Straße que empiecen por la misma letra.","Name three shops on Hohe Straße that start with the same letter.","Esan Hohe Straße kaleko hiru denda, letra beraz hasten direnak."],jury:true},
+ {q:["Ein Haus in der Glockengasse gab einem weltberühmten Duft seinen Namen. Welche Hausnummer?","Una casa de la Glockengasse dio nombre a un perfume famoso en todo el mundo. ¿Qué número tiene?","A house in Glockengasse gave its name to a world-famous fragrance. What is the house number?","Glockengasse kaleko etxe batek mundu osoan ezaguna den lurrin bati eman zion izena. Zein da etxearen zenbakia?"],ok:a=>a==="4711"},
+ {g:["Rathaus und Alter Markt","Ayuntamiento y Alter Markt","Town hall and Alter Markt","Udaletxea eta Alter Markt"]},
+ {q:["Am Rathaus kämpft ein Bürgermeister mit einem Löwen. Wie heißt er mit Nachnamen?","En el ayuntamiento, un alcalde lucha contra un león. ¿Cuál es su apellido?","At the town hall, a mayor fights a lion. What is his surname?","Udaletxean, alkate bat lehoi baten aurka borrokatzen da. Zein da bere abizena?"],ok:a=>/^(hermann)?(grin|gryn)$/.test(a)},
+ {q:["Unter der Uhr am Ratsturm sitzt der „Platzjabbeck“. Was streckt er zur vollen Stunde heraus?","Bajo el reloj de la torre del ayuntamiento está el «Platzjabbeck». ¿Qué saca a cada hora en punto?","Under the clock on the town hall tower sits the “Platzjabbeck”. What does he stick out on the hour?","Udaletxeko dorreko erlojuaren azpian «Platzjabbeck» dago. Zer ateratzen du ordu jotzean?"],ok:a=>/(zunge|lengua|tongue|mihi)/.test(a)}
+];
+const FRAGEN=RAETSEL.filter(r=>r.q);
+const ROUTE_TAB=["start","fotos","schatz","wahr","raetsel","ergebnis"];
+
+const KEY="koeln-stadtrally-v1";
+let st={team:"",start:null,ende:null,fotos:[],schatz:[],wahr:[],antw:{},ok:{}};
+try{const r=localStorage.getItem(KEY);if(r)st=Object.assign(st,JSON.parse(r));}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}};
+let lang=L.includes(location.hash.slice(1))?location.hash.slice(1):"de";
+try{if(!location.hash){const s=localStorage.getItem(KEY+"-lang");if(L.includes(s))lang=s;}}catch(e){}
+let tab="start";
+const t=k=>T[k][L.indexOf(lang)];
+const x=a=>a[L.indexOf(lang)];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+const minuten=()=>st.start?Math.floor(((st.ende||Date.now())-st.start)/60000):0;
+const strafe=()=>Math.max(0,minuten()-120);
+const teil=()=>({f:st.fotos.filter(Boolean).length*2,s:st.schatz.filter(Boolean).length*2,w:st.wahr.filter(Boolean).length*3,r:Object.values(st.ok).filter(Boolean).length});
+const summe=()=>{const p=teil();return p.f+p.s+p.w+p.r;};
+const fmt=ms=>{const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),z=s%60;return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(z).padStart(2,"0");};
+
+function kopf(){
+  document.documentElement.lang=lang==="eu"?"eu":lang;
+  document.title=t("titel");
+  document.getElementById("titel").textContent=t("titel");
+  document.getElementById("sub").textContent=t("sub");
+  document.getElementById("zeitLabel").textContent=t("zeit");
+  document.getElementById("punkteLabel").textContent=t("punkte");
+  document.getElementById("sprachen").innerHTML=L.map(l=>`<button data-l="${l}" class="${l===lang?"an":""}" aria-pressed="${l===lang}">${NAMEN[l]}</button>`).join("");
+  const p=teil();
+  const mini=[ "", `${st.fotos.filter(Boolean).length}/10`, `${st.schatz.filter(Boolean).length}/10`, `${st.wahr.filter(Boolean).length}/5`, `${Object.values(st.ok).filter(Boolean).length}/${FRAGEN.filter(q=>!q.jury).length}`, ""];
+  document.getElementById("tabs").innerHTML=T.tab.map((n,i)=>`<button data-t="${ROUTE_TAB[i]}" class="${ROUTE_TAB[i]===tab?"an":""}">${n[L.indexOf(lang)]}${mini[i]?`<span class="mini">${mini[i]}</span>`:""}</button>`).join("");
+  uhr();
+}
+function uhr(){
+  const ms=st.start?(st.ende||Date.now())-st.start:0;
+  document.getElementById("zeit").textContent=fmt(ms);
+  document.getElementById("zeitbox").classList.toggle("spaet",minuten()>=120);
+  document.getElementById("punkte").textContent=summe()-strafe();
+}
+const liste=(arr,key,pkt)=>arr.map((a,i)=>`<div class="karte aufgabe ${st[key][i]?"fertig":""}" role="checkbox" tabindex="0" aria-checked="${!!st[key][i]}" data-k="${key}" data-i="${i}"><span class="haken">${st[key][i]?"✓":""}</span><p><span class="nr">${i+1}</span> &nbsp;${esc(x(a))}</p><span class="pkt">${pkt} P</span></div>`).join("");
+
+function seite(){
+  const m=document.getElementById("inhalt");let h="";
+  const gesperrt=!st.start&&tab!=="start";
+  if(tab==="start"){
+    h+=`<h2>${esc(t("regelnTitel"))}</h2><div class="karte"><ul class="regeln">${T.regeln.map(r=>`<li>${esc(x(r))}</li>`).join("")}</ul><p style="margin:10px 0 0;font-weight:600">${esc(t("ziel"))}</p></div>`;
+    h+=`<div class="karte start"><label for="team">${esc(t("teamLabel"))}</label><input type="text" id="team" maxlength="40" placeholder="${esc(t("teamPh"))}" value="${esc(st.team)}" ${st.start?"disabled":""}>`;
+    h+=st.start?`<p class="meldung ja">${esc(t("laeuft"))}</p>`:`<button class="knopf" id="los" ${st.team.trim()?"":"disabled"}>${esc(t("los"))}</button>`;
+    h+=`</div><button class="knopf zweit" id="reset">${esc(t("reset"))}</button>`;
+  } else if(gesperrt){
+    h+=`<div class="karte"><p style="margin:0">${esc(t("nochNichtGestartet"))}</p></div>`;
+  } else if(tab==="fotos"){
+    h+=`<h2>${esc(t("rFotos"))}</h2><p class="hinweis">${esc(t("fotosHinweis"))}</p>`+liste(FOTOS,"fotos",2);
+  } else if(tab==="schatz"){
+    h+=`<h2>${esc(t("rSchatz"))}</h2><p class="hinweis">${esc(t("schatzHinweis"))}</p>`+liste(SCHATZ,"schatz",2);
+  } else if(tab==="wahr"){
+    h+=`<h2>${esc(t("rWahr"))}</h2><p class="hinweis">${esc(t("wahrHinweis"))}</p>`;
+    h+=WAHR.map((w,i)=>`<div class="karte ${st.wahr[i]?"fertig":""}"><p class="ort">${i+1}. ${esc(x(w.o))}</p><p class="clue"><b>${esc(t("hinweis"))}:</b> ${esc(x(w.h))}</p><p class="foto"><b>📷 ${esc(t("aufgabe"))}:</b> ${esc(x(w.f))}</p><div class="aufgabe" role="checkbox" tabindex="0" aria-checked="${!!st.wahr[i]}" data-k="wahr" data-i="${i}"><span class="haken">${st.wahr[i]?"✓":""}</span><p style="align-self:center;font-weight:600">${esc(t("erledigt"))}</p><span class="pkt">3 P</span></div></div>`).join("");
+  } else if(tab==="raetsel"){
+    h+=`<h2>${esc(t("rRaetsel"))}</h2><p class="hinweis">${esc(t("raetselHinweis"))}</p>`;
+    let n=0;
+    h+=RAETSEL.map(r=>{
+      if(r.g)return `<p class="gruppe">${esc(x(r.g))}</p>`;
+      const i=n++,ok=st.ok[i],a=st.antw[i]||"";
+      let meld="";
+      if(r.jury)meld=a?`<p class="meldung">${esc(t("jury"))}</p>`:"";
+      else if(ok)meld=`<p class="meldung ja">${esc(t("richtig"))}</p>`;
+      else if(a)meld=`<p class="meldung nein">${esc(t("falsch"))}</p>`;
+      return `<div class="karte frage ${ok?"fertig":""}"><p><b>${i+1}.</b> ${esc(x(r.q))}</p><div class="antwort"><input type="text" id="a${i}" value="${esc(a)}" ${ok?"disabled":""} autocomplete="off" autocapitalize="characters" aria-label="${i+1}"><button data-q="${i}" ${ok?"disabled":""}>${esc(t("pruefen"))}</button></div>${meld}</div>`;
+    }).join("");
+  } else if(tab==="ergebnis"){
+    const p=teil(),s=strafe(),ges=summe()-s;
+    h+=`<div class="karte gross"><p style="margin:0;font-weight:700">${esc(st.team)}</p><div class="zahl">${ges}</div><p style="margin:4px 0 0;color:var(--grau)">${esc(t("punkte"))} ${esc(t("vonMax"))}</p></div>`;
+    if(s>15)h+=`<div class="warnung">${esc(t("disq"))}</div>`;
+    else if(minuten()>=120&&!st.ende)h+=`<div class="warnung">${esc(t("ueber"))}</div>`;
+    h+=`<div class="karte ergebnis"><table>
+      <tr><td>${esc(t("rFotos"))}</td><td>${p.f}</td></tr>
+      <tr><td>${esc(t("rSchatz"))}</td><td>${p.s}</td></tr>
+      <tr><td>${esc(t("rWahr"))}</td><td>${p.w}</td></tr>
+      <tr><td>${esc(t("rRaetsel"))}</td><td>${p.r}</td></tr>
+      <tr><td>${esc(t("rStrafe"))}</td><td>−${s}</td></tr>
+      <tr><td>${esc(t("rZeit"))}</td><td>${fmt((st.ende||Date.now())-st.start)}</td></tr>
+      <tr class="gesamt"><td>${esc(t("rGesamt"))}</td><td>${ges}</td></tr></table></div>`;
+    h+=st.ende?`<p class="hinweis" style="text-align:center;font-weight:600">${esc(t("zeigen"))}</p>`:`<p class="hinweis" style="text-align:center">${esc(t("zwischen"))}</p><button class="knopf" id="ziel">${esc(t("amZiel"))}</button>`;
+  }
+  m.innerHTML=h;
+}
+function alles(){kopf();seite();}
+
+let dlgJa=null;
+function frage(text,ja){document.getElementById("dialogText").textContent=text;document.getElementById("dlgJa").textContent=t("ja");document.getElementById("dlgNein").textContent=t("nein");dlgJa=ja;document.getElementById("dialog").classList.add("offen");document.getElementById("dlgJa").focus();}
+const zu=()=>document.getElementById("dialog").classList.remove("offen");
+document.getElementById("dlgNein").addEventListener("click",zu);
+document.getElementById("dlgJa").addEventListener("click",()=>{zu();if(dlgJa)dlgJa();});
+
+function pruefe(i){
+  const inp=document.getElementById("a"+i);if(!inp)return;
+  const v=inp.value.trim();st.antw[i]=v;
+  const r=FRAGEN[i];
+  if(!r.jury)st.ok[i]=!!v&&r.ok(N(v));
+  save();alles();
+  const n=document.getElementById("a"+i);if(n&&!st.ok[i])n.focus();
+}
+function umschalten(k,i){if(!st.start)return;st[k][i]=!st[k][i];save();alles();}
+
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button,[data-k]");if(!b)return;
+  if(b.dataset.l){lang=b.dataset.l;try{localStorage.setItem(KEY+"-lang",lang);}catch(e){}history.replaceState(null,"","#"+lang);alles();return;}
+  if(b.dataset.t){tab=b.dataset.t;alles();window.scrollTo({top:document.querySelector(".leiste").offsetTop});return;}
+  if(b.dataset.k){umschalten(b.dataset.k,+b.dataset.i);return;}
+  if(b.dataset.q!==undefined){pruefe(+b.dataset.q);return;}
+  if(b.id==="los"){const v=document.getElementById("team").value.trim();if(!v)return;st.team=v;st.start=Date.now();save();tab="fotos";alles();return;}
+  if(b.id==="reset"){frage(t("resetFrage"),()=>{st={team:"",start:null,ende:null,fotos:[],schatz:[],wahr:[],antw:{},ok:{}};save();tab="start";alles();});return;}
+  if(b.id==="ziel"){frage(t("zielFrage"),()=>{st.ende=Date.now();save();alles();});return;}
+});
+document.addEventListener("keydown",e=>{
+  const el=e.target;
+  if(el.dataset&&el.dataset.k&&(e.key===" "||e.key==="Enter")){e.preventDefault();umschalten(el.dataset.k,+el.dataset.i);const n=document.querySelector(`[data-k="${el.dataset.k}"][data-i="${el.dataset.i}"]`);if(n)n.focus();}
+  if(el.id&&/^a\d+$/.test(el.id)&&e.key==="Enter"){pruefe(+el.id.slice(1));}
+  if(e.key==="Escape")zu();
+});
+document.addEventListener("input",e=>{if(e.target.id==="team"){st.team=e.target.value;save();const b=document.getElementById("los");if(b)b.disabled=!st.team.trim();}});
+window.addEventListener("hashchange",()=>{const h=location.hash.slice(1);if(L.includes(h)&&h!==lang){lang=h;alles();}});
+setInterval(()=>{if(st.start&&!st.ende){uhr();}},1000);
+alles();
+}
+</script>
+</body>
+</html>
